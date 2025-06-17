@@ -1,0 +1,238 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Smart Bargain - Product Catalog</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <link rel="stylesheet" href="assets/css/main.css" />
+    <style>
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .product-card {
+            border: 1px solid #ddd;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .product-card img {
+            max-width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+
+        .cart-icon {
+            margin-top: 10px;
+            display: inline-block;
+            cursor: pointer;
+        }
+
+        .cart-icon img {
+            width: 32px;
+            height: 32px;
+        }
+    </style>
+</head>
+<body class="right-sidebar is-preload">
+<div id="page-wrapper">
+
+    <!-- Header -->
+    <div id="header-wrapper">
+        <div id="header" class="container">
+            <nav id="nav">
+                <ul>
+                        <li><a id="link-home" href="homepage.html">Home</a></li>
+						<li><a id="link-products" href="products.html">Products</a></li>
+						<li><a id="link-negotiate" href="negotiate.html">Negotiate</a></li>
+						<li><a id="link-dashboard" href="dashboard.html">User Dashboard</a></li>
+						<li><a id="link-login" href="login.html">Login / Register</a></li>
+                    </ul>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Main -->
+    <div class="wrapper">
+        <div class="container" id="main">
+            <div class="row gtr-150">
+                <div class="col-12">
+
+                    <!-- Content -->
+                    <article id="content">
+                        <header>
+                            <h2>Product Catalog</h2>
+                            <p>Fresh vegetables and fruits deliver daily nutrition, supporting a healthier lifestyle with every purchase.
+                            Place your orders instantly and enjoy seamless shopping—right here on this page!</p>
+                        </header>
+
+                        <!-- Search and filters -->
+                        <section>
+                            <form id="product-search" onsubmit="event.preventDefault(); filterProducts();">
+                                <input type="text" id="searchText" placeholder="Search products..." />
+                                <select id="categorySelect" onchange="filterProducts()">
+                                    <option value="">All Categories</option>
+                                    <option value="vegetables">Vegetables</option>
+                                    <option value="fruits">Fruits</option>
+                                </select>
+                                <button type="submit" class="button small">Search</button>
+                            </form>
+                        </section>
+
+                        <!-- Featured Categories -->
+                        <section>
+                            <header>
+                                <h3>Featured Categories</h3>
+                            </header>
+                            <ul class="features">
+                                <li><strong>Vegetables</strong> - Leafy greens, root veggies & more</li>
+                                <li><strong>Fruits</strong> - Citrus, tropical & berries</li>
+                            </ul>
+                        </section>
+
+                        <!-- Available Products -->
+                        <section>
+                            <header>
+                                <h3>Available Products</h3>
+                            </header>
+                            <div class="product-grid" id="productGrid">
+                                <!-- Products will be rendered here -->
+                            </div>
+                        </section>
+                    </article>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div id="footer-wrapper">
+        <div id="footer" class="container">
+            <header class="major">
+                <h2>Contact Us</h2>
+                <p>Smart Bargain offers an interactive e-commerce experience with negotiation at its core.</p>
+            </header>
+            <div class="row">
+                <section class="col-6 col-12-narrower">
+                    <form method="post" action="#">
+                        <div class="row gtr-50">
+                            <div class="col-6 col-12-mobile">
+                                <input name="name" placeholder="Name" type="text" />
+                            </div>
+                            <div class="col-6 col-12-mobile">
+                                <input name="email" placeholder="Email" type="email" />
+                            </div>
+                            <div class="col-12">
+                                <textarea name="message" placeholder="Message"></textarea>
+                            </div>
+                            <div class="col-12">
+                                <ul class="actions">
+                                    <li><input type="submit" value="Send Message" /></li>
+                                    <li><input type="reset" value="Clear form" /></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </form>
+                </section>
+                <section class="col-6 col-12-narrower">
+                    <ul class="divided icons">
+                        <li class="icon brands fa-facebook-f"><a href="#">facebook.com/smartbargain</a></li>
+                        <li class="icon brands fa-instagram"><a href="#">instagram.com/smartbargain</a></li>
+                    </ul>
+                </section>
+            </div>
+            <div id="copyright">
+                <ul class="menu">
+                    <li>&copy; 2025 Smart Bargain. All rights reserved.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Scripts -->
+<script src="assets/js/jquery.min.js"></script>
+<script>
+    const products = [
+        {
+            name: "Fresh Broccoli",
+            price: "$2.99",
+            category: "vegetables",
+            image: "images/broccoli.jpg"
+        },
+        {
+            name: "Carrots (1kg)",
+            price: "$1.50",
+            category: "vegetables",
+            image: "images/carrots.jpg"
+        },
+        {
+            name: "Red Apples",
+            price: "$3.25",
+            category: "fruits",
+            image: "images/apples.jpg"
+        },
+        {
+            name: "Bananas (bunch)",
+            price: "$2.10",
+            category: "fruits",
+            image: "images/bananas.jpg"
+        },
+        {
+            name: "Green Apples",
+            price: "$3.10",
+            category: "fruits",
+            image: "images/green-apples.jpg"
+        }
+    ];
+
+    function renderProducts(filtered = products) {
+        const grid = document.getElementById("productGrid");
+        grid.innerHTML = "";
+
+        if (filtered.length === 0) {
+            grid.innerHTML = "<p>No products found.</p>";
+            return;
+        }
+
+        filtered.forEach(p => {
+            const card = document.createElement("div");
+            card.className = "product-card";
+            card.innerHTML = `
+                <img src="${p.image}" alt="${p.name}" />
+                <h4>${p.name}</h4>
+                <p>${p.price}</p>
+                <div class="cart-icon" title="Add to Cart">
+                    <img src="images/shoppingcart.png" alt="Cart Icon" />
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+    }
+
+    function filterProducts() {
+        const category = document.getElementById("categorySelect").value.toLowerCase();
+        const searchText = document.getElementById("searchText").value.toLowerCase();
+
+        const filtered = products.filter(p =>
+            (category === "" || p.category === category) &&
+            p.name.toLowerCase().includes(searchText)
+        );
+
+        renderProducts(filtered);
+    }
+
+    // Initial render
+    renderProducts();
+</script>
+<script src="assets/js/navigation.js"></script>
+</body>
+</html>

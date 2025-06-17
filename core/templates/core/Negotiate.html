@@ -1,0 +1,289 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Smart Bargain - Product Catalog</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <link rel="stylesheet" href="assets/css/main.css" />
+    <style>
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .product-card {
+            border: 1px solid #ddd;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .product-card img {
+            max-width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+
+        /* New styles for Bid and Bargain buttons */
+        .action-buttons {
+            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .action-button {
+            cursor: pointer;
+            background-color: #f0f0f0;
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            transition: background-color 0.3s ease;
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            user-select: none;
+        }
+
+        .action-button:hover {
+            background-color: #e0e0e0;
+        }
+
+        /* Tooltip styling */
+        .action-button[title]:hover::after {
+            content: attr(title);
+            position: absolute;
+            bottom: 130%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: #fff;
+            padding: 5px 8px;
+            font-size: 12px;
+            border-radius: 4px;
+            white-space: nowrap;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .action-button img {
+            width: 24px;
+            height: 24px;
+        }
+    </style>
+</head>
+<body class="right-sidebar is-preload">
+<div id="page-wrapper">
+
+    <!-- Header -->
+    <div id="header-wrapper">
+        <div id="header" class="container">
+            <nav id="nav">
+                <ul>
+                        <li><a id="link-home" href="homepage.html">Home</a></li>
+						<li><a id="link-products" href="products.html">Products</a></li>
+						<li><a id="link-negotiate" href="negotiate.html">Negotiate</a></li>
+						<li><a id="link-dashboard" href="dashboard.html">User Dashboard</a></li>
+						<li><a id="link-login" href="login.html">Login / Register</a></li>
+                    </ul>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Main -->
+    <div class="wrapper">
+        <div class="container" id="main">
+            <div class="row gtr-150">
+                <div class="col-12">
+
+                    <!-- Content -->
+                    <article id="content">
+                        <header>
+                            <h2>Bid or Bargain</h2>
+                            <p>Fresh vegetables and fruits deliver daily nutrition, supporting a healthier lifestyle with every purchase.  
+Place your orders instantly, use the Bid feature to make offers on large quantity purchases, and take advantage of Bargain to negotiate the best prices for bulk orders—seamless shopping, all on this page!</p>
+
+
+                        <!-- Search and filters -->
+                        <section>
+                            <form id="product-search" onsubmit="event.preventDefault(); filterProducts();">
+                                <input type="text" id="searchText" placeholder="Search products..." />
+                                <select id="categorySelect" onchange="filterProducts()">
+                                    <option value="">All Categories</option>
+                                    <option value="vegetables">Vegetables</option>
+                                    <option value="fruits">Fruits</option>
+                                </select>
+                                <button type="submit" class="button small">Search</button>
+                            </form>
+                        </section>
+
+                        <!-- Featured Categories -->
+                        <section>
+                            <header>
+                                <h3>Featured Categories</h3>
+                            </header>
+                            <ul class="features">
+                                <li><strong>Vegetables</strong> - Leafy greens, root veggies & more</li>
+                                <li><strong>Fruits</strong> - Citrus, tropical & berries</li>
+                            </ul>
+                        </section>
+
+                        <!-- Available Products -->
+                        <section>
+                            <header>
+                                <h3>Available Products</h3>
+                            </header>
+                            <div class="product-grid" id="productGrid">
+                                <!-- Products will be rendered here -->
+                            </div>
+                        </section>
+                    </article>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div id="footer-wrapper">
+        <div id="footer" class="container">
+            <header class="major">
+                <h2>Contact Us</h2>
+                <p>Smart Bargain offers an interactive e-commerce experience with negotiation at its core.</p>
+            </header>
+            <div class="row">
+                <section class="col-6 col-12-narrower">
+                    <form method="post" action="#">
+                        <div class="row gtr-50">
+                            <div class="col-6 col-12-mobile">
+                                <input name="name" placeholder="Name" type="text" />
+                            </div>
+                            <div class="col-6 col-12-mobile">
+                                <input name="email" placeholder="Email" type="email" />
+                            </div>
+                            <div class="col-12">
+                                <textarea name="message" placeholder="Message"></textarea>
+                            </div>
+                            <div class="col-12">
+                                <ul class="actions">
+                                    <li><input type="submit" value="Send Message" /></li>
+                                    <li><input type="reset" value="Clear form" /></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </form>
+                </section>
+                <section class="col-6 col-12-narrower">
+                    <ul class="divided icons">
+                        <li class="icon brands fa-facebook-f"><a href="#">facebook.com/smartbargain</a></li>
+                        <li class="icon brands fa-instagram"><a href="#">instagram.com/smartbargain</a></li>
+                    </ul>
+                </section>
+            </div>
+            <div id="copyright">
+                <ul class="menu">
+                    <li>&copy; 2025 Smart Bargain. All rights reserved.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Scripts -->
+<script src="assets/js/jquery.min.js"></script>
+<script>
+    const products = [
+        {
+            name: "Fresh Broccoli",
+            price: "$2.99",
+            category: "vegetables",
+            image: "images/broccoli.jpg"
+        },
+        {
+            name: "Carrots (1kg)",
+            price: "$1.50",
+            category: "vegetables",
+            image: "images/carrots.jpg"
+        },
+        {
+            name: "Red Apples",
+            price: "$3.25",
+            category: "fruits",
+            image: "images/apples.jpg"
+        },
+        {
+            name: "Bananas (bunch)",
+            price: "$2.10",
+            category: "fruits",
+            image: "images/bananas.jpg"
+        },
+        {
+            name: "Green Apples",
+            price: "$3.10",
+            category: "fruits",
+            image: "images/green-apples.jpg"
+        }
+    ];
+
+    function renderProducts(filtered = products) {
+        const grid = document.getElementById("productGrid");
+        grid.innerHTML = "";
+
+        if (filtered.length === 0) {
+            grid.innerHTML = "<p>No products found.</p>";
+            return;
+        }
+
+        filtered.forEach(p => {
+            const card = document.createElement("div");
+            card.className = "product-card";
+            card.innerHTML = `
+                <img src="${p.image}" alt="${p.name}" />
+                <h4>${p.name}</h4>
+                <p>${p.price}</p>
+                <div class="action-buttons">
+                    <div class="action-button" title="Place a bid on this product" onclick="bidOnProduct('${p.name}')">
+                        <img src="images/bid.png" alt="Bid Icon" /> Bid
+                    </div>
+                    <div class="action-button" title="Negotiate a bargain on this product" onclick="bargainOnProduct('${p.name}')">
+                        <img src="images/bargain.png" alt="Bargain Icon" /> Bargain
+                    </div>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+    }
+
+    function filterProducts() {
+        const category = document.getElementById("categorySelect").value.toLowerCase();
+        const searchText = document.getElementById("searchText").value.toLowerCase();
+
+        const filtered = products.filter(p =>
+            (category === "" || p.category === category) &&
+            p.name.toLowerCase().includes(searchText)
+        );
+
+        renderProducts(filtered);
+    }
+
+    function bidOnProduct(productName) {
+        alert(`You clicked Bid for "${productName}". Feature coming soon!`);
+    }
+
+    function bargainOnProduct(productName) {
+        alert(`You clicked Bargain for "${productName}". Feature coming soon!`);
+    }
+
+    // Initial render
+    renderProducts();
+</script>
+<script src="assets/js/navigation.js"></script>
+</body>
+</html>
