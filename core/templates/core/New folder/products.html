@@ -84,12 +84,12 @@
                 </form>
             </section>
 
-            <!-- Add New Product Button -->
-            {% if request.session.role == "seller" %}
-			<section>
-				<button class="button small" style="float: right;" onclick="openAddProductModal()">+ Add New Product</button>
-			</section>
-			{% endif %}
+           {% if request.session.role == "seller" %}
+    <!-- Add New Product Button -->
+    <section>
+        <button class="button small" style="float: right;" onclick="openAddProductModal()">+ Add New Product</button>
+    </section>
+{% endif %}
 
             <!-- Product Grid -->
             <section style="clear: both;">
@@ -200,10 +200,8 @@
 
 {% block extra_js %}
 <script>
-    const userRole = "{{ request.session.role|escapejs }}";
-</script>
-
-<script>
+	const userRole = "{{ request.session.role|escapejs }}";
+	
     const products = [
         { name: "Fresh Broccoli", price: 2.99, category: "vegetables", image: "{% static 'core/images/broccoli.jpg' %}" },
         { name: "Carrots (1kg)", price: 1.50, category: "vegetables", image: "{% static 'core/images/carrots.jpg' %}" },
@@ -214,14 +212,6 @@
 
     let currentProduct = null;
     let currentCatalogProduct = null;
-	
-	function renderIcon(product) {
-    if (userRole === "buyer") {
-        return `<img src="/static/core/images/shoppingcart.png" alt="Cart" onclick='openModal(${JSON.stringify(product)})' />`;
-    } else {
-        return `<img src="/static/core/images/catalog.png" alt="Catalog" onclick='openCatalogModal(${JSON.stringify(product)})' />`;
-    }
-}
 
     function renderProducts(filtered = products) {
         const grid = document.getElementById("productGrid");
@@ -234,13 +224,14 @@
                 <h4>${p.name}</h4>
                 <p>$${p.price.toFixed(2)}</p>
                 <div class="action-icons">
-					${
-						userRole === "buyer"
-							? `<img src="{% static 'core/images/shoppingcart.png' %}" alt="Cart" onclick='openModal(${JSON.stringify(p)})' />`
-							: `<img src="{% static 'core/images/catalog.png' %}" alt="Catalog" onclick='openCatalogModal(${JSON.stringify(p)})' />`
-					}
-				</div>
-
+    ${
+        userRole === "buyer"
+            ? `<img src="/static/core/images/shoppingcart.png" alt="Cart" onclick='openModal(${JSON.stringify(p)})' />`
+            : userRole === "seller"
+                ? `<img src="/static/core/images/catalog.png" alt="Catalog" onclick='openCatalogModal(${JSON.stringify(p)})' />`
+                : ""
+    }
+</div>
             `;
             grid.appendChild(card);
         });

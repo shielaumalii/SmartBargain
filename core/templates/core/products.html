@@ -4,6 +4,7 @@
 {% block title %}Smart Bargain - Product Catalog{% endblock %}
 
 {% block extra_css %}
+
 <style>
     .product-grid {
         display: grid;
@@ -113,11 +114,25 @@
     </div>
 </div>
 
+<!-- Payment Modal -->
+<div id="paymentModal" class="modal">
+    <div class="modal-content">
+        <h3>Enter Payment Details</h3>
+        <input type="text" id="cardNumber" placeholder="Card Number" />
+        <input type="text" id="cardName" placeholder="Name on Card" />
+        <input type="text" id="expiry" placeholder="MM/YY" />
+        <input type="text" id="cvv" placeholder="CVV" />
+        <button class="button" onclick="goToPayment()">Pay Now</button>
+        <button class="button" onclick="closePaymentModal()">Cancel</button>
+    </div>
+</div>
+
+
 <!-- Confirm Purchase Modal -->
 <div id="confirmModal" class="confirm-modal">
     <div class="confirm-content">
         <p>Are you sure you want to proceed to payment?</p>
-        <button class="button" onclick="goToPayment()">Proceed</button>
+        <button class="button" onclick="openPaymentModal()">Proceed</button>
         <button class="button" onclick="closeConfirmModal()">Cancel</button>
     </div>
 </div>
@@ -190,6 +205,14 @@
             <label for="newPer"><strong>Per:</strong></label><br/>
             <input type="text" id="newPer" placeholder="e.g. per 1kg" style="width: 100%;" />
         </div>
+		<div style="margin-top: 20px;">
+			<label for="newCategory"><strong>Category:</strong></label><br/>
+			<select id="newCategory" style="width: 100%;">
+				<option value="">-- Select Category --</option>
+				<option value="vegetables">Vegetables</option>
+				<option value="fruits">Fruits</option>
+			</select>
+		</div>
         <div style="text-align: center; margin-top: 25px;">
             <button class="button" onclick="confirmNewProduct()">Confirm</button>
             <button class="button" onclick="closeAddProductModal()">Close</button>
@@ -200,18 +223,32 @@
 
 {% block extra_js %}
 <script>
-	const userRole = "{{ request.session.role|escapejs }}";
-	
-    const products = [
-        { name: "Fresh Broccoli", price: 2.99, category: "vegetables", image: "{% static 'core/images/broccoli.jpg' %}" },
-        { name: "Carrots (1kg)", price: 1.50, category: "vegetables", image: "{% static 'core/images/carrots.jpg' %}" },
-        { name: "Red Apples", price: 3.25, category: "fruits", image: "{% static 'core/images/apples.jpg' %}" },
-        { name: "Bananas (bunch)", price: 2.10, category: "fruits", image: "{% static 'core/images/bananas.jpg' %}" },
-        { name: "Green Apples", price: 3.10, category: "fruits", image: "{% static 'core/images/green-apples.jpg' %}" }
-    ];
+    const userRole = "{{ request.session.role|escapejs }}";
 
+    function getCSRFToken() {
+        return document.cookie
+            .split("; ")
+            .find(row => row.startsWith("csrftoken="))
+            ?.split("=")[1];
+    }
+
+    let products = [];
     let currentProduct = null;
     let currentCatalogProduct = null;
+
+    function fetchProductsFromServer() {
+        fetch("/get_products/")
+            .then(response => response.json())
+            .then(data => {
+                products = data.products;
+                renderProducts();
+            });
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        fetchProductsFromServer();
+        renderProducts();  // ✅ moved here
+    });
 
     function renderProducts(filtered = products) {
         const grid = document.getElementById("productGrid");
@@ -224,14 +261,14 @@
                 <h4>${p.name}</h4>
                 <p>$${p.price.toFixed(2)}</p>
                 <div class="action-icons">
-    ${
-        userRole === "buyer"
-            ? `<img src="/static/core/images/shoppingcart.png" alt="Cart" onclick='openModal(${JSON.stringify(p)})' />`
-            : userRole === "seller"
-                ? `<img src="/static/core/images/catalog.png" alt="Catalog" onclick='openCatalogModal(${JSON.stringify(p)})' />`
-                : ""
-    }
-</div>
+                    ${
+                        userRole === "buyer"
+                            ? `<img src="/static/core/images/shoppingcart.png" alt="Cart" onclick='openModal(${JSON.stringify(p)})' />`
+                            : userRole === "seller"
+                                ? `<img src="/static/core/images/catalog.png" alt="Catalog" onclick='openCatalogModal(${JSON.stringify(p)})' />`
+                                : ""
+                    }
+                </div>
             `;
             grid.appendChild(card);
         });
@@ -267,7 +304,8 @@
     }
 
     function closeModal() {
-        document.getElementById("purchaseModal").style.display = "none";
+        console.log("Closing purchase modal");
+		document.getElementById("purchaseModal").style.display = "none";
     }
 
     function closeConfirmModal() {
@@ -275,7 +313,24 @@
     }
 
     function goToPayment() {
-        window.location.href = "/payment/";
+        const qty = parseInt(document.getElementById("modalQty").value);
+        const productId = currentProduct.id;
+
+        fetch("/purchase_product/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "X-CSRFToken": getCSRFToken()
+            },
+            body: `product_id=${productId}&quantity=${qty}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message || "Purchase complete.");
+            closeConfirmModal();
+            closeModal();
+            renderProducts();
+        }, 100);  // delay to let alert box close properly
     }
 
     function openCatalogModal(product) {
@@ -299,9 +354,20 @@
     }
 
     function confirmDelete() {
-        alert(`Deleted ${currentCatalogProduct.name}`);
-        closeDeleteConfirmModal();
-        renderProducts();
+        fetch("/delete_product/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "X-CSRFToken": getCSRFToken()
+            },
+            body: `product_id=${currentCatalogProduct.id}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.success ? "Product deleted." : "Error: " + data.error);
+            closeDeleteConfirmModal();
+            renderProducts();
+        });
     }
 
     function openEditModal() {
@@ -318,12 +384,25 @@
     }
 
     function saveProductChanges() {
-        currentCatalogProduct.qty = parseInt(document.getElementById("editQty").value);
-        currentCatalogProduct.price = parseFloat(document.getElementById("editPrice").value);
-        currentCatalogProduct.per = document.getElementById("editPer").value;
-        alert("Changes saved for " + currentCatalogProduct.name);
-        closeEditModal();
-        renderProducts();
+        const qty = parseInt(document.getElementById("editQty").value);
+        const price = parseFloat(document.getElementById("editPrice").value);
+        const per = document.getElementById("editPer").value;
+        const productId = currentCatalogProduct.id;
+
+        fetch("/edit_product/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "X-CSRFToken": getCSRFToken()
+            },
+            body: `product_id=${productId}&quantity=${qty}&price=${price}&per=${encodeURIComponent(per)}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.success ? "Product updated." : "Error: " + data.error);
+            closeEditModal();
+            renderProducts();
+        });
     }
 
     function openAddProductModal() {
@@ -340,18 +419,35 @@
         const qty = parseInt(document.getElementById("newQty").value);
         const price = parseFloat(document.getElementById("newPrice").value);
         const per = document.getElementById("newPer").value.trim();
+        const category = document.getElementById("newCategory").value;
 
-        if (!name || !image || qty <= 0 || price <= 0 || !per) {
-            alert("Please fill all fields correctly. Quantity and Price must be greater than 0.");
+        if (!name || !image || qty <= 0 || price <= 0 || !per || !category) {
+            alert("Please fill all fields correctly.");
             return;
         }
 
-        products.push({ name, image, qty, price, per, category: "misc" });
-        alert("Product added successfully!");
-        closeAddProductModal();
-        renderProducts();
+        fetch("/add_product/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "X-CSRFToken": getCSRFToken()
+            },
+            body: `name=${encodeURIComponent(name)}&image_url=${encodeURIComponent(image)}&quantity=${qty}&price=${price}&per=${encodeURIComponent(per)}&category=${encodeURIComponent(category)}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.success ? "Product added!" : "Error: " + data.error);
+            closeAddProductModal();
+            fetchProductsFromServer();  // ensures product list updates
+        });
     }
+	function openPaymentModal() {
+		closeConfirmModal();
+		document.getElementById("paymentModal").style.display = "block";
+	}
 
-    renderProducts();
+	function closePaymentModal() {
+		document.getElementById("paymentModal").style.display = "none";
+	}
 </script>
 {% endblock %}

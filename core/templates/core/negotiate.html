@@ -224,28 +224,33 @@
 
 <script src="{% static 'core/js/jquery.min.js' %}"></script>
 <script>
-    const products = [
-        { name: "Fresh Broccoli", price: "$2.99", category: "vegetables", image: "{% static 'core/images/broccoli.jpg' %}" },
-        { name: "Carrots (1kg)", price: "$1.50", category: "vegetables", image: "{% static 'core/images/carrots.jpg' %}" },
-        { name: "Red Apples", price: "$3.25", category: "fruits", image: "{% static 'core/images/apples.jpg' %}" },
-        { name: "Bananas (bunch)", price: "$2.10", category: "fruits", image: "{% static 'core/images/bananas.jpg' %}" },
-        { name: "Green Apples", price: "$3.10", category: "fruits", image: "{% static 'core/images/green-apples.jpg' %}" }
-    ];
+    let products = [];
+
+	function fetchNegotiationProducts() {
+		fetch("/get_negotiate_products/")
+        .then(response => response.json())
+        .then(data => {
+            products = data.products;
+            renderProducts();
+        });
+	}
+
+document.addEventListener("DOMContentLoaded", fetchNegotiationProducts);
 
     let currentBargainProduct = null;
 
-    function bargainOnProduct(productName) {
-        const product = products.find(p => p.name === productName);
-        currentBargainProduct = product;
-        document.getElementById("bargainProductName").innerText = product.name;
-        document.getElementById("bargainProductImage").src = product.image;
-        document.getElementById("originalPrice").innerText = parseFloat(product.price.replace('$', ''));
-        document.getElementById("bargainQty").value = 0;
-        document.getElementById("bargainPrice").value = 0;
-        document.getElementById("totalPrice").innerText = "0.00";
-        document.getElementById("bargainError").style.display = "none";
-        document.getElementById("bargainModal").style.display = "block";
-    }
+    function bargainOnProduct(product) {
+		currentBargainProduct = product;
+		document.getElementById("bargainProductName").innerText = product.name;
+		document.getElementById("bargainProductImage").src = product.image;
+		document.getElementById("originalPrice").innerText = parseFloat(product.price).toFixed(2);
+		document.getElementById("bargainQty").value = 0;
+		document.getElementById("bargainPrice").value = 0;
+		document.getElementById("totalPrice").value = "0.00";
+		document.getElementById("bargainError").style.display = "none";
+		document.getElementById("bargainModal").style.display = "block";
+	}
+
 
     function closeBargainModal() {
         document.getElementById("bargainModal").style.display = "none";
@@ -275,28 +280,29 @@
     }
 
     function renderProducts(filtered = products) {
-        const grid = document.getElementById("productGrid");
-        grid.innerHTML = "";
+    const grid = document.getElementById("productGrid");
+    grid.innerHTML = "";
 
-        filtered.forEach(p => {
-            const card = document.createElement("div");
-            card.className = "product-card";
-            card.innerHTML = `
-                <img src="${p.image}" alt="${p.name}" />
-                <h4>${p.name}</h4>
-                <p>${p.price}</p>
-                <div class="action-buttons">
-                    <div class="action-button" title="Place a bid on this product" onclick="alert('Bid feature coming soon!')">
-                        <img src="{% static 'core/images/bid.png' %}" alt="Bid Icon" /> Bid
-                    </div>
-                    <div class="action-button" title="Negotiate a bargain on this product" onclick="bargainOnProduct('${p.name}')">
-                        <img src="{% static 'core/images/bargain.png' %}" alt="Bargain Icon" /> Bargain
-                    </div>
+    filtered.forEach(p => {
+        const card = document.createElement("div");
+        card.className = "product-card";
+        card.innerHTML = `
+            <img src="${p.image}" alt="${p.name}" />
+            <h4>${p.name}</h4>
+            <p>$${parseFloat(p.price).toFixed(2)}</p>
+            <div class="action-buttons">
+                <div class="action-button" title="Place a bid on this product" onclick="alert('Bid feature coming soon!')">
+                    <img src="{% static 'core/images/bid.png' %}" alt="Bid Icon" /> Bid
                 </div>
-            `;
-            grid.appendChild(card);
-        });
-    }
+                <div class="action-button" title="Negotiate a bargain on this product" onclick='bargainOnProduct(JSON.parse(decodeURIComponent("${encodeURIComponent(JSON.stringify(p))}")))'>
+                    <img src="{% static 'core/images/bargain.png' %}" alt="Bargain Icon" /> Bargain
+                </div>
+            </div>
+        `;
+		grid.appendChild(card);
+		});
+	}
+
 
     function filterProducts() {
         const category = document.getElementById("categorySelect").value.toLowerCase();

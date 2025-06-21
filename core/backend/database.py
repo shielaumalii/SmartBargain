@@ -22,6 +22,9 @@ def create_connection():
 def create_tables():
     conn = create_connection()
     cursor = conn.cursor()
+    
+    cursor.execute("DROP TABLE IF EXISTS products")
+
 
     # Users table (Buyer or Seller)
     cursor.execute('''
@@ -36,15 +39,16 @@ def create_tables():
 
     # Products table
     cursor.execute('''
-        CREATE TABLE IF NOT EXISTS products (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            image_url TEXT,
-            quantity INTEGER NOT NULL,
-            price REAL NOT NULL,
-            per TEXT NOT NULL,
-            seller_id INTEGER,
-            FOREIGN KEY(seller_id) REFERENCES users(id)
+         CREATE TABLE IF NOT EXISTS products (
+               id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                image_url TEXT,
+                quantity INTEGER NOT NULL,
+                price REAL NOT NULL,
+                per TEXT NOT NULL,
+                category TEXT NOT NULL,
+                seller_id INTEGER,
+                FOREIGN KEY(seller_id) REFERENCES users(id)
         )
     ''')
 
