@@ -212,9 +212,6 @@
 
             <div class="modal-actions">
                 <button class="button" onclick="handleBargainAction('submit')">Submit</button>
-                <!-- <button class="button" onclick="handleBargainAction('decline')">Decline Offer</button>
-                <button class="button" onclick="handleBargainAction('accept')">Accept Offer</button>
-                <button class="button" onclick="handleBargainAction('counter')">Counter Propose</button> -->
                 <button class="button" onclick="closeBargainModal()">Close</button>
             </div>
             <p id="bargainError" style="color:red; display:none; margin-top:10px;"></p>
@@ -240,8 +237,7 @@
 
 <script src="{% static 'core/js/jquery.min.js' %}"></script>
 <script>
-    // Add this at the top of your script
-    const userRole = "{{ user.role|default:'buyer' }}"; // 'seller' or 'buyer'
+    const userRole = "{{ role|default:'buyer' }}";
 </script>
 <script>
     let products = [];
@@ -373,16 +369,16 @@ function saveBargainSetting() {
                 ${
                     userRole === "seller"
                     ? `<div class="action-button" title="Update bargain settings" onclick='openUpdateModal(${p.id})'>
-                        <img src="{% static 'core/images/update.png' %}" alt="Update Icon" /> Update
-                       </div>`
+        Update
+       </div>`
                     : `
-                    <div class="action-button" title="Place a bid on this product" onclick="alert('Bid feature coming soon!')">
-                        <img src="{% static 'core/images/bid.png' %}" alt="Bid Icon" /> Bid
-                    </div>
-                    <div class="action-button" title="Negotiate a bargain on this product" onclick='bargainOnProduct(JSON.parse(decodeURIComponent("${encodeURIComponent(JSON.stringify(p))}")))'>
-                        <img src="{% static 'core/images/bargain.png' %}" alt="Bargain Icon" /> Bargain
-                    </div>
-                    `
+            <div class="action-button" title="Place a bid on this product" onclick="alert('Bid feature coming soon!')">
+                <img src="{% static 'core/images/bid.png' %}" alt="Bid Icon" /> Bid
+            </div>
+            <div class="action-button" title="Negotiate a bargain on this product" onclick='bargainOnProduct(JSON.parse(decodeURIComponent("${encodeURIComponent(JSON.stringify(p))}")))'>
+                <img src="{% static 'core/images/bargain.png' %}" alt="Bargain Icon" /> Bargain
+            </div>
+        `
                 }
             </div>
         `;

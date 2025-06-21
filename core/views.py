@@ -22,7 +22,9 @@ def homepage(request):
 def negotiate(request):
     if 'username' not in request.session:
         return redirect('login')
-    return render(request, 'core/negotiate.html')
+    return render(request, "core/negotiate.html", {
+        "role": request.session.get("role", "buyer"),
+    })
 
 
 def dashboard(request):
