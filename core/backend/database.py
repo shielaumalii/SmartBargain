@@ -52,5 +52,31 @@ def create_tables():
         )
     ''')
 
+    # Seller's bargain settings table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS bargain_settings (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            product_id INTEGER NOT NULL,
+            min_quantity INTEGER NOT NULL,
+            min_price REAL NOT NULL,
+            FOREIGN KEY(product_id) REFERENCES products(id)
+        )
+    ''')
+
+    # Customer's bargain requests table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS bargain_requests (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            product_id INTEGER NOT NULL,
+            user_id INTEGER NOT NULL,
+            quantity INTEGER NOT NULL,
+            price REAL NOT NULL,
+            status TEXT NOT NULL DEFAULT 'pending',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(product_id) REFERENCES products(id),
+            FOREIGN KEY(user_id) REFERENCES users(id)
+        )
+    ''')
+
     conn.commit()
     # Singleton, so no close here

@@ -1,8 +1,11 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
 from core.backend.login import login_user, register_user
 from core.backend.product_manager import ProductManager
+from core.backend.bargain_factory import BargainFactory
 
 def login_view(request):
     return render(request, "core/login.html")
@@ -151,3 +154,25 @@ def negotiate_products(request):
             "category": p[6]
         })
     return JsonResponse({"products": product_list})
+
+@csrf_exempt
+def save_bargain_setting(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        setting = BargainFactory.create_setting(
+            data["product_id"], data["min_quantity"], data["min_price"]
+        )
+        setting.save()
+        return JsonResponse({"status": "success"})
+
+@csrf_exempt
+def save_bargain_request(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        # Use session or dummy user_id for now
+        user_id = request.session.get("user_id", 1)
+        req = BargainFactory.create_request(
+            data["product_id"], user_id, data["quantity"], data["price"]
+        )
+        req.save()
+        return JsonResponse({"status": "success"})

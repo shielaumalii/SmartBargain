@@ -17,4 +17,6 @@ urlpatterns = [
     path("delete_product/", views.delete_product, name="delete_product"),
     path("purchase_product/", views.purchase_product, name="purchase_product"),
     path("get_negotiate_products/", views.negotiate_products, name="get_negotiate_products"),
+    path('save_bargain_setting/', views.save_bargain_setting, name='save_bargain_setting'),
+    path('save_bargain_request/', views.save_bargain_request, name='save_bargain_request'),
 ]

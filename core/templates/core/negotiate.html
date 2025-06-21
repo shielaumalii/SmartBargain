@@ -212,17 +212,37 @@
 
             <div class="modal-actions">
                 <button class="button" onclick="handleBargainAction('submit')">Submit</button>
-                <button class="button" onclick="handleBargainAction('decline')">Decline Offer</button>
+                <!-- <button class="button" onclick="handleBargainAction('decline')">Decline Offer</button>
                 <button class="button" onclick="handleBargainAction('accept')">Accept Offer</button>
-                <button class="button" onclick="handleBargainAction('counter')">Counter Propose</button>
+                <button class="button" onclick="handleBargainAction('counter')">Counter Propose</button> -->
                 <button class="button" onclick="closeBargainModal()">Close</button>
             </div>
             <p id="bargainError" style="color:red; display:none; margin-top:10px;"></p>
         </div>
     </div>
+
+    <!-- Update Modal -->
+    <div id="updateModal" class="modal">
+        <div class="modal-content">
+            <h3>Update Bargain Settings</h3>
+            <label for="updateMinQty">Minimum Quantity:</label>
+            <input type="number" id="updateMinQty" min="1" />
+            <label for="updateMinPrice">Minimum Price:</label>
+            <input type="number" id="updateMinPrice" min="0" step="0.01" />
+            <div class="modal-actions">
+                <button class="button" onclick="saveBargainSetting()">Save</button>
+                <button class="button" onclick="closeUpdateModal()">Cancel</button>
+            </div>
+            <p id="updateError" style="color:red; display:none; margin-top:10px;"></p>
+        </div>
+    </div>
 </div>
 
 <script src="{% static 'core/js/jquery.min.js' %}"></script>
+<script>
+    // Add this at the top of your script
+    const userRole = "{{ user.role|default:'buyer' }}"; // 'seller' or 'buyer'
+</script>
 <script>
     let products = [];
 
@@ -275,9 +295,68 @@ document.addEventListener("DOMContentLoaded", fetchNegotiationProducts);
         }
 
         errorMsg.style.display = "none";
+        if (action === "submit") {
+            fetch("/save_bargain_request/", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({
+                    product_id: currentBargainProduct.id,
+                    quantity: qty,
+                    price: price
+                })
+            }).then(res => res.json()).then(data => {
+                if (data.status === "success") {
+                    alert("Bargain request submitted!");
+                    closeBargainModal();
+                }
+            });
+            return;
+        }
         alert(`${action.charAt(0).toUpperCase() + action.slice(1)} action submitted for ${currentBargainProduct.name}`);
         closeBargainModal();
     }
+
+    let currentUpdateProductId = null;
+
+function openUpdateModal(productId) {
+    currentUpdateProductId = productId;
+    document.getElementById("updateMinQty").value = "";
+    document.getElementById("updateMinPrice").value = "";
+    document.getElementById("updateError").style.display = "none";
+    document.getElementById("updateModal").style.display = "block";
+}
+
+function closeUpdateModal() {
+    document.getElementById("updateModal").style.display = "none";
+}
+
+function saveBargainSetting() {
+    const minQty = parseInt(document.getElementById("updateMinQty").value);
+    const minPrice = parseFloat(document.getElementById("updateMinPrice").value);
+    const errorMsg = document.getElementById("updateError");
+
+    if (!minQty || !minPrice || minQty <= 0 || minPrice <= 0) {
+        errorMsg.innerText = "Please enter valid minimum quantity and price.";
+        errorMsg.style.display = "block";
+        return;
+    }
+    errorMsg.style.display = "none";
+
+    fetch("/save_bargain_setting/", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            product_id: currentUpdateProductId,
+            min_quantity: minQty,
+            min_price: minPrice
+        })
+    }).then(res => res.json()).then(data => {
+        if (data.status === "success") {
+            alert("Bargain settings updated!");
+            closeUpdateModal();
+        }
+    });
+}
 
     function renderProducts(filtered = products) {
     const grid = document.getElementById("productGrid");
@@ -291,17 +370,25 @@ document.addEventListener("DOMContentLoaded", fetchNegotiationProducts);
             <h4>${p.name}</h4>
             <p>$${parseFloat(p.price).toFixed(2)}</p>
             <div class="action-buttons">
-                <div class="action-button" title="Place a bid on this product" onclick="alert('Bid feature coming soon!')">
-                    <img src="{% static 'core/images/bid.png' %}" alt="Bid Icon" /> Bid
-                </div>
-                <div class="action-button" title="Negotiate a bargain on this product" onclick='bargainOnProduct(JSON.parse(decodeURIComponent("${encodeURIComponent(JSON.stringify(p))}")))'>
-                    <img src="{% static 'core/images/bargain.png' %}" alt="Bargain Icon" /> Bargain
-                </div>
+                ${
+                    userRole === "seller"
+                    ? `<div class="action-button" title="Update bargain settings" onclick='openUpdateModal(${p.id})'>
+                        <img src="{% static 'core/images/update.png' %}" alt="Update Icon" /> Update
+                       </div>`
+                    : `
+                    <div class="action-button" title="Place a bid on this product" onclick="alert('Bid feature coming soon!')">
+                        <img src="{% static 'core/images/bid.png' %}" alt="Bid Icon" /> Bid
+                    </div>
+                    <div class="action-button" title="Negotiate a bargain on this product" onclick='bargainOnProduct(JSON.parse(decodeURIComponent("${encodeURIComponent(JSON.stringify(p))}")))'>
+                        <img src="{% static 'core/images/bargain.png' %}" alt="Bargain Icon" /> Bargain
+                    </div>
+                    `
+                }
             </div>
         `;
-		grid.appendChild(card);
-		});
-	}
+        grid.appendChild(card);
+    });
+}
 
 
     function filterProducts() {
