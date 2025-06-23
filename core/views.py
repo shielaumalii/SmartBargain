@@ -162,7 +162,7 @@ def save_bargain_setting(request):
     if request.method == "POST":
         data = json.loads(request.body)
         setting = BargainFactory.create_setting(
-            data["product_id"], data["min_quantity"], data["min_price"]
+            data["product_id"], data["min_quantity"], data["min_price"], data.get("unit", "kg")
         )
         setting.save()
         return JsonResponse({"status": "success"})

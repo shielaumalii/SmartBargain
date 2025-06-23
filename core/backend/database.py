@@ -23,7 +23,9 @@ def create_tables():
     conn = create_connection()
     cursor = conn.cursor()
     
+    cursor.execute("DROP TABLE IF EXISTS bargain_settings")
     cursor.execute("DROP TABLE IF EXISTS products")
+    cursor.execute("DROP TABLE IF EXISTS bargain_requests")
 
 
     # Users table (Buyer or Seller)
@@ -59,6 +61,7 @@ def create_tables():
             product_id INTEGER NOT NULL,
             min_quantity INTEGER NOT NULL,
             min_price REAL NOT NULL,
+            unit TEXT DEFAULT 'kg',
             FOREIGN KEY(product_id) REFERENCES products(id)
         )
     ''')

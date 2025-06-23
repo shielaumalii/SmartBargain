@@ -1,17 +1,18 @@
 from .database import create_connection
 
 class BargainSetting:
-    def __init__(self, product_id, min_quantity, min_price):
+    def __init__(self, product_id, min_quantity, min_price, unit="kg"):
         self.product_id = product_id
         self.min_quantity = min_quantity
         self.min_price = min_price
+        self.unit = unit
 
     def save(self):
         conn = create_connection()
         cursor = conn.cursor()
         cursor.execute(
-            "INSERT OR REPLACE INTO bargain_settings (product_id, min_quantity, min_price) VALUES (?, ?, ?)",
-            (self.product_id, self.min_quantity, self.min_price)
+            "INSERT OR REPLACE INTO bargain_settings (product_id, min_quantity, min_price, unit) VALUES (?, ?, ?, ?)",
+            (self.product_id, self.min_quantity, self.min_price, self.unit)
         )
         conn.commit()
 
@@ -33,8 +34,8 @@ class BargainRequest:
 
 class BargainFactory:
     @staticmethod
-    def create_setting(product_id, min_quantity, min_price):
-        return BargainSetting(product_id, min_quantity, min_price)
+    def create_setting(product_id, min_quantity, min_price, unit="kg"):
+        return BargainSetting(product_id, min_quantity, min_price, unit)
 
     @staticmethod
     def create_request(product_id, user_id, quantity, price):
