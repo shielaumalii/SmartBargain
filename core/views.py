@@ -6,6 +6,7 @@ import json
 from core.backend.login import login_user, register_user
 from core.backend.product_manager import ProductManager
 from core.backend.bargain_factory import BargainFactory
+from core.backend.database import create_connection
 
 def login_view(request):
     return render(request, "core/login.html")
@@ -80,6 +81,7 @@ def add_product(request):
         qty = int(request.POST.get("quantity"))
         price = float(request.POST.get("price"))
         per = request.POST.get("per")
+        unit = request.POST.get('unit', 'kg')
         category = request.POST.get("category", "").lower()  # get category from form or JS
         seller_email = request.session.get("email")
 
@@ -93,7 +95,7 @@ def add_product(request):
             return JsonResponse({"success": False, "error": "Seller not found"})
         seller_id = seller_row[0]
 
-        ProductManager.add_product(name, image, qty, price, per, category, seller_id)
+        ProductManager.add_product(name, image, qty, price, per, unit, category, seller_id)
         return JsonResponse({"success": True})
     return JsonResponse({"success": False, "error": "Unauthorized or bad request"})
 
@@ -160,12 +162,26 @@ def negotiate_products(request):
 @csrf_exempt
 def save_bargain_setting(request):
     if request.method == "POST":
-        data = json.loads(request.body)
-        setting = BargainFactory.create_setting(
-            data["product_id"], data["min_quantity"], data["min_price"], data.get("unit", "kg")
-        )
+        product_id = int(request.POST.get("product_id"))
+        min_quantity = int(request.POST.get("min_quantity"))
+        min_price = float(request.POST.get("min_price"))
+
+        # Always fetch the unit from the products table
+        conn = create_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT unit FROM products WHERE id = ?", (product_id,))
+        row = cursor.fetchone()
+        if not row:
+            return JsonResponse({"success": False, "error": "Product not found"})
+        unit = row[0]  # This is the product's unit
+
+        # Save the bargain setting (unit is not stored in bargain_settings)
+        setting = BargainFactory.create_setting(product_id, min_quantity, min_price)
         setting.save()
-        return JsonResponse({"status": "success"})
+
+        return JsonResponse({"success": True, "unit": unit})  # Optionally return the unit for frontend display
+
+    return JsonResponse({"success": False, "error": "Invalid request"})
 
 @csrf_exempt
 def save_bargain_request(request):
@@ -178,3 +194,25 @@ def save_bargain_request(request):
         )
         req.save()
         return JsonResponse({"status": "success"})
+    
+@csrf_exempt
+def get_bargain_setting_with_unit(request, bargain_setting_id):
+    conn = create_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT bs.id, bs.product_id, bs.min_quantity, bs.min_price, p.unit
+        FROM bargain_settings bs
+        JOIN products p ON bs.product_id = p.id
+        WHERE bs.id = ?
+    """, (bargain_setting_id,))
+    row = cursor.fetchone()
+    if row:
+        # row = (id, product_id, min_quantity, min_price, unit)
+        return JsonResponse({
+            "id": row[0],
+            "product_id": row[1],
+            "min_quantity": row[2],
+            "min_price": row[3],
+            "unit": row[4]
+        })
+    return JsonResponse({"error": "Not found"}, status=404)

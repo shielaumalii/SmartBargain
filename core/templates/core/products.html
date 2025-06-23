@@ -173,6 +173,11 @@
             <div style="margin-top: 20px;"></div>
             <label for="editPer"><strong>Per:</strong></label><br/>
             <input type="text" id="editPer" placeholder="e.g.1kg">
+            <label for="productUnit">Unit:</label>
+            <select id="productUnit" name="unit">
+                <option value="kg">kg</option>
+                <option value="g">g</option>
+            </select>
         </div>
         <button class="button" onclick="saveProductChanges()">Save</button>
         <button class="button" onclick="closeEditModal()">Cancel</button>
@@ -388,6 +393,7 @@
         const price = parseFloat(document.getElementById("editPrice").value);
         const per = document.getElementById("editPer").value;
         const productId = currentCatalogProduct.id;
+        const unit = document.getElementById("productUnit").value;
 
         fetch("/edit_product/", {
             method: "POST",
@@ -420,6 +426,7 @@
         const price = parseFloat(document.getElementById("newPrice").value);
         const per = document.getElementById("newPer").value.trim();
         const category = document.getElementById("newCategory").value;
+        const unit = document.getElementById("productUnit").value;
 
         if (!name || !image || qty <= 0 || price <= 0 || !per || !category) {
             alert("Please fill all fields correctly.");
@@ -432,7 +439,8 @@
                 "Content-Type": "application/x-www-form-urlencoded",
                 "X-CSRFToken": getCSRFToken()
             },
-            body: `name=${encodeURIComponent(name)}&image_url=${encodeURIComponent(image)}&quantity=${qty}&price=${price}&per=${encodeURIComponent(per)}&category=${encodeURIComponent(category)}`
+            // body: `name=${encodeURIComponent(name)}&image_url=${encodeURIComponent(image)}&quantity=${qty}&price=${price}&per=${encodeURIComponent(per)}&category=${encodeURIComponent(category)}`
+            body: `name=${encodeURIComponent(name)}&image_url=${encodeURIComponent(image)}&quantity=${qty}&price=${price}&per=${encodeURIComponent(per)}&category=${encodeURIComponent(category)}&unit=${encodeURIComponent(unit)}`
         })
         .then(response => response.json())
         .then(data => {

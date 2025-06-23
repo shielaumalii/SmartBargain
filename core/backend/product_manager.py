@@ -10,24 +10,24 @@ class ProductManager:
         return cursor.fetchall()
 
     @staticmethod
-    def add_product(name, image_url, quantity, price, per, category, seller_id):
+    def add_product(name, image_url, quantity, price, per, unit, category, seller_id):
         conn = create_connection()
         cursor = conn.cursor()
         cursor.execute("""
-            INSERT INTO products (name, image_url, quantity, price, per, category, seller_id)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        """, (name, image_url, quantity, price, per, category, seller_id))
+            INSERT INTO products (name, image_url, quantity, price, per, unit, category, seller_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """, (name, image_url, quantity, price, per, unit, category, seller_id))
         conn.commit()
 
     @staticmethod
-    def update_product(product_id, quantity, price, per):
+    def update_product(product_id, quantity, price, per, unit):
         conn = create_connection()
         cursor = conn.cursor()
         cursor.execute("""
             UPDATE products
-            SET quantity = ?, price = ?, per = ?
+            SET quantity = ?, price = ?, per = ?, unit = ?
             WHERE id = ?
-        """, (quantity, price, per, product_id))
+        """, (quantity, price, per, unit, product_id))
         conn.commit()
 
     @staticmethod

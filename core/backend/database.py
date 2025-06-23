@@ -23,9 +23,12 @@ def create_tables():
     conn = create_connection()
     cursor = conn.cursor()
     
+        # Drop tables if they exist (order matters due to foreign keys)
+    cursor.execute("DROP TABLE IF EXISTS bargain_requests")
     cursor.execute("DROP TABLE IF EXISTS bargain_settings")
     cursor.execute("DROP TABLE IF EXISTS products")
-    cursor.execute("DROP TABLE IF EXISTS bargain_requests")
+    cursor.execute("DROP TABLE IF EXISTS users")
+
 
 
     # Users table (Buyer or Seller)
@@ -48,6 +51,7 @@ def create_tables():
                 quantity INTEGER NOT NULL,
                 price REAL NOT NULL,
                 per TEXT NOT NULL,
+                unit TEXT DEFAULT 'kg',
                 category TEXT NOT NULL,
                 seller_id INTEGER,
                 FOREIGN KEY(seller_id) REFERENCES users(id)
@@ -61,7 +65,6 @@ def create_tables():
             product_id INTEGER NOT NULL,
             min_quantity INTEGER NOT NULL,
             min_price REAL NOT NULL,
-            unit TEXT DEFAULT 'kg',
             FOREIGN KEY(product_id) REFERENCES products(id)
         )
     ''')
@@ -83,3 +86,7 @@ def create_tables():
 
     conn.commit()
     # Singleton, so no close here
+
+if __name__ == "__main__":
+    create_tables()
+    print("Tables created!")

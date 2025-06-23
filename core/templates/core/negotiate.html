@@ -223,7 +223,13 @@
         <div class="modal-content">
             <h3>Update Bargain Settings</h3>
             <label for="updateMinQty">Minimum Quantity:</label>
-            <input type="number" id="updateMinQty" min="1" />
+            <div style="display:flex;align-items:center;gap:8px;">
+                <input type="number" id="updateMinQty" min="1" style="flex:1;" />
+                <select id="updateQtyUnit">
+                    <option value="kg">kg</option>
+                    <option value="lb">g</option>
+                </select>
+            </div>
             <label for="updateMinPrice">Minimum Price:</label>
             <input type="number" id="updateMinPrice" min="0" step="0.01" />
             <div class="modal-actions">
@@ -329,6 +335,7 @@ function closeUpdateModal() {
 function saveBargainSetting() {
     const minQty = parseInt(document.getElementById("updateMinQty").value);
     const minPrice = parseFloat(document.getElementById("updateMinPrice").value);
+    const unit = document.getElementById("updateQtyUnit").value;    
     const errorMsg = document.getElementById("updateError");
 
     if (!minQty || !minPrice || minQty <= 0 || minPrice <= 0) {
@@ -344,7 +351,8 @@ function saveBargainSetting() {
         body: JSON.stringify({
             product_id: currentUpdateProductId,
             min_quantity: minQty,
-            min_price: minPrice
+            min_price: minPrice,
+            unit: unit
         })
     }).then(res => res.json()).then(data => {
         if (data.status === "success") {
