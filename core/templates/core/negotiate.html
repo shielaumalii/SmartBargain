@@ -200,12 +200,14 @@
             <img id="bargainProductImage" src="" alt="Product Image" style="display:block; margin:10px auto; max-width:150px; border-radius:8px;" />
             <h4 id="bargainProductName"></h4>
             <p>Original Price: $<span id="originalPrice"></span></p>
+            <p>Minimum Quantity for Bargain: <span id="minBargainQty"></span> <span id="minBargainQtyUnit"></span></p>
+            <p>Minimum Price for Bargain: $<span id="minBargainPrice"></span></p>
 
-            <label for="minBargainQty">Minimum Quantity for Bargain:</label>
+            <!-- <label for="minBargainQty">Minimum Quantity for Bargain:</label>
             <input type="number" id="minBargainQty" readonly />
 
             <label for="minBargainPrice">Minimum Price for Bargain:</label>
-            <input type="number" id="minBargainPrice" readonly />
+            <input type="number" id="minBargainPrice" readonly /> -->
 
             <label for="bargainQty">Bargain Quantity:</label>
             <input type="number" id="bargainQty" value="0" min="0" onchange="updateTotalPrice()" />
@@ -228,6 +230,15 @@
     <div id="updateModal" class="modal">
         <div class="modal-content">
             <h3>Update Bargain Settings</h3>
+            <p>
+                <strong>Current Minimum Quantity:</strong>
+                <span id="currentMinQty"></span>
+                <span id="currentMinQtyUnit"></span>
+            </p>
+            <p>
+                <strong>Current Minimum Price:</strong>
+                $<span id="currentMinPrice"></span>
+            </p>
             <label for="updateMinQty">Minimum Quantity:</label>
             <div style="display:flex;align-items:center;gap:8px;">
                 <input type="number" id="updateMinQty" min="1" style="flex:1;" />
@@ -270,8 +281,18 @@ document.addEventListener("DOMContentLoaded", fetchNegotiationProducts);
 		document.getElementById("bargainProductImage").src = product.image;
 		document.getElementById("originalPrice").innerText = parseFloat(product.price).toFixed(2);
 
-        document.getElementById("minBargainQty").value = product.min_quantity || "";
-        document.getElementById("minBargainPrice").value = product.min_price || "";
+        // document.getElementById("minBargainQty").value = product.min_quantity || "";
+        // document.getElementById("minBargainPrice").value = product.min_price || "";
+        
+        document.getElementById("minBargainQty").innerText = product.min_quantity !== undefined && product.min_quantity !== null
+            ? product.min_quantity
+            : "";
+
+        document.getElementById("minBargainQtyUnit").innerText = product.unit ? product.unit : "";
+
+        document.getElementById("minBargainPrice").innerText = product.min_price !== undefined && product.min_price !== null
+            ? parseFloat(product.min_price).toFixed(2)
+            : "";
 
 		document.getElementById("bargainQty").value = 0;
 		document.getElementById("bargainPrice").value = 0;
@@ -330,10 +351,16 @@ document.addEventListener("DOMContentLoaded", fetchNegotiationProducts);
 function openUpdateModal(productId) {
     currentUpdateProductId = productId;
     const product = products.find(p => p.id === productId);
-    document.getElementById("updateMinQty").value = "";
-    document.getElementById("updateMinPrice").value = "";
+
+    document.getElementById("currentMinQty").innerText = product.min_quantity ?? "—";
+    document.getElementById("currentMinQtyUnit").innerText = product.unit || "kg";
+    document.getElementById("currentMinPrice").innerText = product.min_price !== undefined && product.min_price !== null
+        ? parseFloat(product.min_price).toFixed(2)
+        : "—";
+
+    document.getElementById("updateMinQty").value = product.min_quantity || "";
+    document.getElementById("updateMinPrice").value = product.min_price || "";
     document.getElementById("updateError").style.display = "none";
-    // Set the unit field to the product's unit (default to "kg" if missing)
     document.getElementById("updateQtyUnit").value = product && product.unit ? product.unit : "kg";
     document.getElementById("updateModal").style.display = "block";
 }

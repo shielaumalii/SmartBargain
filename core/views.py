@@ -219,16 +219,18 @@ def get_bargain_setting_with_unit(request, bargain_setting_id):
 
 @csrf_exempt
 def get_negotiate_products(request):
+    print("get_negotiate_products CALLED")
     conn = create_connection()
     cursor = conn.cursor()
     cursor.execute("""
         SELECT p.id, p.name, p.image_url, p.price, p.unit, p.category,
-               b.min_quantity, b.min_price
+               b.min_quantity, b.min_price, b.unit
         FROM products p
         LEFT JOIN bargain_settings b ON p.id = b.product_id
     """)
     products = []
     for row in cursor.fetchall():
+        print("DEBUG ROW:", row)
         product = {
             "id": row[0],
             "name": row[1],
@@ -238,6 +240,7 @@ def get_negotiate_products(request):
             "category": row[5],
             "min_quantity": row[6],
             "min_price": row[7],
+            "bargain_unit": row[8], 
         }
         products.append(product)
     return JsonResponse({"products": products})

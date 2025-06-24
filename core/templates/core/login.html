@@ -43,13 +43,16 @@
     <!-- ✅ MESSAGES SECTION -->
     {% if messages %}
       <ul>
-        {% for message in messages %}
-          <li style="color: {% if message.tags == 'error' %}red{% else %}green{% endif %};">
-            {{ message }}
-          </li>
-        {% endfor %}
-      </ul>
-    {% endif %}
+        <ul>
+            {% for message in messages %}
+            {% if "error" in message.tags %}
+                <li style="color: red;">{{ message }}</li>
+            {% else %}
+                <li style="color: green;">{{ message }}</li>
+            {% endif %}
+            {% endfor %}
+        </ul>
+            {% endif %}
 
     <!-- Login Section -->
     <section>

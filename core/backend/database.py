@@ -23,7 +23,7 @@ def create_tables():
     conn = create_connection()
     cursor = conn.cursor()
     
-        # Drop tables if they exist (order matters due to foreign keys)
+    # Drop tables if they exist (order matters due to foreign keys)
     cursor.execute("DROP TABLE IF EXISTS bargain_requests")
     cursor.execute("DROP TABLE IF EXISTS bargain_settings")
     cursor.execute("DROP TABLE IF EXISTS products")
