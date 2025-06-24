@@ -188,7 +188,9 @@
 <div id="addProductModal" class="modal">
     <div class="modal-content" style="width: 500px; text-align: left;">
         <h3 style="text-align: center;">Add New Product</h3>
+        <!-- Use a single grid for all four fields in two rows -->
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;">
+            <!-- Row 1 -->
             <div>
                 <label for="newProductName"><strong>Product Name:</strong></label><br/>
                 <input type="text" id="newProductName" placeholder="Enter product name" style="width: 100%;" />
@@ -197,28 +199,32 @@
                 <label for="newProductImage"><strong>Product Image:</strong></label><br/>
                 <input type="text" id="newProductImage" placeholder="Enter image path or URL" style="width: 100%;" />
             </div>
+            <!-- Row 2 -->
+        <!-- <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;"> -->
             <div>
                 <label for="newQty"><strong>Available Quantity:</strong></label><br/>
                 <input type="number" id="newQty" placeholder="Quantity" min="1" style="width: 100%;" />
             </div>
             <div>
+                <label for="addProductUnit"><strong>Unit:</strong></label><br/>
+                <select id="addProductUnit" name="unit" style="width: 100%;">
+                    <option value="kg">Kilogram (kg)</option>
+                    <option value="g">Gram (g)</option>
+                </select>
+            </div>
+        </div>
+            <!-- Row 3 -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;">
+            <div>
                 <label for="newPrice"><strong>Price:</strong></label><br/>
                 <input type="number" id="newPrice" placeholder="Price" min="0.01" step="0.01" style="width: 100%;" />
             </div>
+            <div>
+                <label for="addPer"><strong>Per:</strong></label><br/>
+                <input type="text" id="addPer" placeholder="per kilogram" style="width: 100%;" readonly />
+            </div>
         </div>
-        <div style="margin-top: 20px;">
-            <label for="newPer"><strong>Per:</strong></label><br/>
-            <input type="text" id="newPer" placeholder="e.g. per 1kg" style="width: 100%;" />
-        </div>
-        <div style="margin-top: 20px;">
-            <label for="productUnit"><strong>Unit:</strong></label><br/>
-            <select id="productUnit" name="unit" style="width: 100%;">
-                <option value="kg">kg</option>
-                <option value="g">g</option>
-                <option value="lb">lb</option>
-                <option value="pcs">pcs</option>
-            </select>
-        </div>
+        <!-- Category and buttons below the grid -->
 		<div style="margin-top: 20px;">
 			<label for="newCategory"><strong>Category:</strong></label><br/>
 			<select id="newCategory" style="width: 100%;">
@@ -261,7 +267,7 @@
 
     document.addEventListener("DOMContentLoaded", function () {
         fetchProductsFromServer();
-        renderProducts();  // ✅ moved here
+        renderProducts();  
     });
 
     function renderProducts(filtered = products) {
@@ -420,8 +426,27 @@
         });
     }
 
+    function setupPerFieldAutoUpdate() {
+        const unitSelect = document.getElementById("addProductUnit");
+        const perInput = document.getElementById("addPer");
+        if (!unitSelect || !perInput) return;
+        function updatePerField() {
+            let unitValue = unitSelect.value;
+            if (unitValue === "kg") {
+                perInput.value = "per kilogram";
+            } else if (unitValue === "g") {
+                perInput.value = "per gram";
+            } else {
+                perInput.value = "per " + unitValue;
+            }
+        }
+        unitSelect.addEventListener("change", updatePerField);
+        updatePerField(); // Set default on load
+    }
+
     function openAddProductModal() {
         document.getElementById("addProductModal").style.display = "block";
+        setupPerFieldAutoUpdate();
     }
 
     function closeAddProductModal() {
@@ -433,9 +458,9 @@
         const image = document.getElementById("newProductImage").value.trim();
         const qty = parseInt(document.getElementById("newQty").value);
         const price = parseFloat(document.getElementById("newPrice").value);
-        const per = document.getElementById("newPer").value.trim();
+        const per = document.getElementById("addPer").value.trim();
         const category = document.getElementById("newCategory").value;
-        const unit = document.getElementById("productUnit").value;
+        const unit = document.getElementById("addProductUnit").value;
 
         if (!name || !image || qty <= 0 || price <= 0 || !per || !category) {
             alert("Please fill all fields correctly.");
@@ -448,7 +473,6 @@
                 "Content-Type": "application/x-www-form-urlencoded",
                 "X-CSRFToken": getCSRFToken()
             },
-            // body: `name=${encodeURIComponent(name)}&image_url=${encodeURIComponent(image)}&quantity=${qty}&price=${price}&per=${encodeURIComponent(per)}&category=${encodeURIComponent(category)}`
             body: `name=${encodeURIComponent(name)}&image_url=${encodeURIComponent(image)}&quantity=${qty}&price=${price}&per=${encodeURIComponent(per)}&category=${encodeURIComponent(category)}&unit=${encodeURIComponent(unit)}`
         })
         .then(response => response.json())
@@ -466,5 +490,22 @@
 	function closePaymentModal() {
 		document.getElementById("paymentModal").style.display = "none";
 	}
+    // Auto-update "Per" field when unit changes
+    // document.addEventListener("DOMContentLoaded", function() {
+    //     const unitSelect = document.getElementById("productUnit");
+    //     const perInput = document.getElementById("newPer");
+    //     function updatePerField() {
+    //         let unitValue = unitSelect.value;
+    //         if (unitValue === "kg") {
+    //             perInput.value = "per kilogram";
+    //         } else if (unitValue === "g") {
+    //             perInput.value = "per gram";
+    //         } else {
+    //             perInput.value = "per " + unitValue;
+    //         }
+    //     }
+    //     unitSelect.addEventListener("change", updatePerField);
+    //     updatePerField(); // Set default on load
+    // });
 </script>
 {% endblock %}
