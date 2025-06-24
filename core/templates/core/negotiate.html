@@ -356,17 +356,16 @@ function saveBargainSetting() {
 
     fetch("/save_bargain_setting/", {
         method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({
-            product_id: currentUpdateProductId,
-            min_quantity: minQty,
-            min_price: minPrice,
-            unit: unit
-        })
-    }).then(res => res.json()).then(data => {
-        if (data.status === "success") {
+        headers: {"Content-Type": "application/x-www-form-urlencoded"},
+        body: `product_id=${currentUpdateProductId}&min_quantity=${minQty}&min_price=${minPrice}&unit=${unit}`
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
             alert("Bargain settings updated!");
             closeUpdateModal();
+        } else {
+            alert(data.error || "Failed to update bargain settings.");
         }
     });
 }
