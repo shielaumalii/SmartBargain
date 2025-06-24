@@ -201,6 +201,12 @@
             <h4 id="bargainProductName"></h4>
             <p>Original Price: $<span id="originalPrice"></span></p>
 
+            <label for="minBargainQty">Minimum Quantity for Bargain:</label>
+            <input type="number" id="minBargainQty" readonly />
+
+            <label for="minBargainPrice">Minimum Price for Bargain:</label>
+            <input type="number" id="minBargainPrice" readonly />
+
             <label for="bargainQty">Bargain Quantity:</label>
             <input type="number" id="bargainQty" value="0" min="0" onchange="updateTotalPrice()" />
 
@@ -263,6 +269,10 @@ document.addEventListener("DOMContentLoaded", fetchNegotiationProducts);
 		document.getElementById("bargainProductName").innerText = product.name;
 		document.getElementById("bargainProductImage").src = product.image;
 		document.getElementById("originalPrice").innerText = parseFloat(product.price).toFixed(2);
+
+        document.getElementById("minBargainQty").value = product.min_quantity || "";
+        document.getElementById("minBargainPrice").value = product.min_price || "";
+
 		document.getElementById("bargainQty").value = 0;
 		document.getElementById("bargainPrice").value = 0;
 		document.getElementById("totalPrice").value = "0.00";

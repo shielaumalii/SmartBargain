@@ -216,3 +216,28 @@ def get_bargain_setting_with_unit(request, bargain_setting_id):
             "unit": row[4]
         })
     return JsonResponse({"error": "Not found"}, status=404)
+
+@csrf_exempt
+def get_negotiate_products(request):
+    conn = create_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT p.id, p.name, p.image_url, p.price, p.unit, p.category,
+               b.min_quantity, b.min_price
+        FROM products p
+        LEFT JOIN bargain_settings b ON p.id = b.product_id
+    """)
+    products = []
+    for row in cursor.fetchall():
+        product = {
+            "id": row[0],
+            "name": row[1],
+            "image": row[2],
+            "price": row[3],
+            "unit": row[4],
+            "category": row[5],
+            "min_quantity": row[6],
+            "min_price": row[7],
+        }
+        products.append(product)
+    return JsonResponse({"products": products})
