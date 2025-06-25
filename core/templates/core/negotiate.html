@@ -1,0 +1,450 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block content %}
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Smart Bargain - Product Catalog</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <link rel="stylesheet" href="{% static 'core/css/main.css' %}" />
+    <style>
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        .product-card {
+            border: 1px solid #ddd;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .product-card img {
+            max-width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+        .action-buttons {
+            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+        }
+        .action-button {
+            cursor: pointer;
+            background-color: #f0f0f0;
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            transition: background-color 0.3s ease;
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            user-select: none;
+        }
+        .action-button:hover {
+            background-color: #e0e0e0;
+        }
+        .action-button[title]:hover::after {
+            content: attr(title);
+            position: absolute;
+            bottom: 130%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: #fff;
+            padding: 5px 8px;
+            font-size: 12px;
+            border-radius: 4px;
+            white-space: nowrap;
+            pointer-events: none;
+            z-index: 10;
+        }
+        .action-button img {
+            width: 24px;
+            height: 24px;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 999;
+            padding-top: 80px;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.6);
+        }
+        .modal-content {
+            background-color: #fff;
+            margin: auto;
+            padding: 2rem;
+            border: 1px solid #888;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+        }
+        .modal-content label {
+            display: block;
+            margin-top: 12px;
+            font-weight: bold;
+            text-align: left;
+        }
+        .modal-content input {
+            width: 100%;
+            padding: 8px;
+            margin-top: 4px;
+            box-sizing: border-box;
+        }
+        .modal-actions {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .modal-content h3,
+        .modal-content h4,
+        .modal-content p {
+            text-align: center;
+        }
+    </style>
+</head>
+<body class="right-sidebar is-preload">
+<div id="page-wrapper">
+
+    <!-- Main -->
+    <div class="wrapper">
+        <div class="container" id="main">
+            <div class="row gtr-150">
+                <div class="col-12">
+                    <article id="content">
+                        <header>
+                            <h2>Bid or Bargain</h2>
+                            <p>Fresh vegetables and fruits deliver daily nutrition... use the Bid feature or Bargain!</p>
+                        </header>
+
+                        <!-- Filters -->
+                        <section>
+                            <form id="product-search" onsubmit="event.preventDefault(); filterProducts();">
+                                <input type="text" id="searchText" placeholder="Search products..." />
+                                <select id="categorySelect" onchange="filterProducts()">
+                                    <option value="">All Categories</option>
+                                    <option value="vegetables">Vegetables</option>
+                                    <option value="fruits">Fruits</option>
+                                </select>
+                                <button type="submit" class="button small">Search</button>
+                            </form>
+                        </section>
+
+                        <!-- Products -->
+                        <section>
+                            <header><h3>Available Products</h3></header>
+                            <div class="product-grid" id="productGrid"></div>
+                        </section>
+                    </article>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Footer -->
+         <div id="footer-wrapper">
+        <div id="footer" class="container">
+            <header class="major">
+                <h2>Contact Us</h2>
+                <p>Smart Bargain offers an interactive e-commerce experience with negotiation at its core.</p>
+            </header>
+            <div class="row">
+                <section class="col-6 col-12-mobile">
+                    <form method="post" action="#">
+                        <div class="row gtr-50">
+                            <div class="col-6 col-12-mobile"><input name="name" placeholder="Name" type="text" /></div>
+                            <div class="col-6 col-12-mobile"><input name="email" placeholder="Email" type="email" /></div>
+                            <div class="col-12"><textarea name="message" placeholder="Message"></textarea></div>
+                            <div class="col-12">
+                                <ul class="actions">
+                                    <li><input type="submit" value="Send Message" /></li>
+                                    <li><input type="reset" value="Clear form" /></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </form>
+                </section>
+                <section class="col-6 col-12-narrower">
+                    <ul class="divided icons col-6 col-12-mobile">
+                        <li class="icon brands fa-facebook-f"><a href="#"><span class="extra">facebook.com/</span>smartbargain</a></li>
+                        <li class="icon brands fa-instagram"><a href="#"><span class="extra">instagram.com/</span>smartbargain</a></li>
+                    </ul>
+                </section>
+            </div>
+            <div id="copyright">
+                <ul class="menu">
+                    <li>&copy; 2025 Smart Bargain. All rights reserved.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bargain Modal -->
+    <div id="bargainModal" class="modal">
+        <div class="modal-content">
+            <h3>Want a better price? Start a bargain and let’s talk!</h3>
+            <img id="bargainProductImage" src="" alt="Product Image" style="display:block; margin:10px auto; max-width:150px; border-radius:8px;" />
+            <h4 id="bargainProductName"></h4>
+            <p>Original Price: $<span id="originalPrice"></span></p>
+            <p>Minimum Quantity for Bargain: <span id="minBargainQty"></span> <span id="minBargainQtyUnit"></span></p>
+            <p>Minimum Price for Bargain: $<span id="minBargainPrice"></span></p>
+
+            <!-- <label for="minBargainQty">Minimum Quantity for Bargain:</label>
+            <input type="number" id="minBargainQty" readonly />
+
+            <label for="minBargainPrice">Minimum Price for Bargain:</label>
+            <input type="number" id="minBargainPrice" readonly /> -->
+
+            <label for="bargainQty">Bargain Quantity:</label>
+            <input type="number" id="bargainQty" value="0" min="0" onchange="updateTotalPrice()" />
+
+            <label for="bargainPrice">Bargain Price:</label>
+            <input type="number" id="bargainPrice" value="0" min="0" step="0.01" onchange="updateTotalPrice()" />
+
+           <label for="totalPrice"><strong>Total Price:</strong></label>
+			<input type="text" id="totalPrice" value="0.00" readonly />
+
+            <div class="modal-actions">
+                <button class="button" onclick="handleBargainAction('submit')">Submit</button>
+                <button class="button" onclick="closeBargainModal()">Close</button>
+            </div>
+            <p id="bargainError" style="color:red; display:none; margin-top:10px;"></p>
+        </div>
+    </div>
+
+    <!-- Update Modal -->
+    <div id="updateModal" class="modal">
+        <div class="modal-content">
+            <h3>Update Bargain Settings</h3>
+            <p>
+                <strong>Current Minimum Quantity:</strong>
+                <span id="currentMinQty"></span>
+                <span id="currentMinQtyUnit"></span>
+            </p>
+            <p>
+                <strong>Current Minimum Price:</strong>
+                $<span id="currentMinPrice"></span>
+            </p>
+            <label for="updateMinQty">Minimum Quantity:</label>
+            <div style="display:flex;align-items:center;gap:8px;">
+                <input type="number" id="updateMinQty" min="1" style="flex:1;" />
+                <input type="text" id="updateQtyUnit" readonly style="width:80px; text-align:center;" />
+            </div>
+            <label for="updateMinPrice">Minimum Price:</label>
+            <input type="number" id="updateMinPrice" min="0" step="0.01" />
+            <div class="modal-actions">
+                <button class="button" onclick="saveBargainSetting()">Save</button>
+                <button class="button" onclick="closeUpdateModal()">Cancel</button>
+            </div>
+            <p id="updateError" style="color:red; display:none; margin-top:10px;"></p>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'core/js/jquery.min.js' %}"></script>
+<script>
+    const userRole = "{{ role|default:'buyer' }}";
+</script>
+<script>
+    let products = [];
+
+	function fetchNegotiationProducts() {
+		fetch("/get_negotiate_products/")
+        .then(response => response.json())
+        .then(data => {
+            products = data.products;
+            renderProducts();
+        });
+	}
+
+document.addEventListener("DOMContentLoaded", fetchNegotiationProducts);
+
+    let currentBargainProduct = null;
+
+    function bargainOnProduct(product) {
+		currentBargainProduct = product;
+		document.getElementById("bargainProductName").innerText = product.name;
+		document.getElementById("bargainProductImage").src = product.image;
+		document.getElementById("originalPrice").innerText = parseFloat(product.price).toFixed(2);
+
+        // document.getElementById("minBargainQty").value = product.min_quantity || "";
+        // document.getElementById("minBargainPrice").value = product.min_price || "";
+        
+        document.getElementById("minBargainQty").innerText = product.min_quantity !== undefined && product.min_quantity !== null
+            ? product.min_quantity
+            : "";
+
+        document.getElementById("minBargainQtyUnit").innerText = product.unit ? product.unit : "";
+
+        document.getElementById("minBargainPrice").innerText = product.min_price !== undefined && product.min_price !== null
+            ? parseFloat(product.min_price).toFixed(2)
+            : "";
+
+		document.getElementById("bargainQty").value = 0;
+		document.getElementById("bargainPrice").value = 0;
+		document.getElementById("totalPrice").value = "0.00";
+		document.getElementById("bargainError").style.display = "none";
+		document.getElementById("bargainModal").style.display = "block";
+	}
+
+
+    function closeBargainModal() {
+        document.getElementById("bargainModal").style.display = "none";
+    }
+
+    function updateTotalPrice() {
+        const qty = parseInt(document.getElementById("bargainQty").value);
+        const price = parseFloat(document.getElementById("bargainPrice").value);
+        const total = (!isNaN(qty) && !isNaN(price)) ? (qty * price).toFixed(2) : "0.00";
+        document.getElementById("totalPrice").innerText = total;
+    }
+
+    function handleBargainAction(action) {
+        const qty = parseInt(document.getElementById("bargainQty").value);
+        const price = parseFloat(document.getElementById("bargainPrice").value);
+        const errorMsg = document.getElementById("bargainError");
+
+        if (!qty || !price || qty <= 0 || price <= 0) {
+            errorMsg.innerText = "Please enter a valid quantity and bargain price before proceeding.";
+            errorMsg.style.display = "block";
+            return;
+        }
+
+        errorMsg.style.display = "none";
+        if (action === "submit") {
+            fetch("/save_bargain_request/", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({
+                    product_id: currentBargainProduct.id,
+                    quantity: qty,
+                    price: price
+                })
+            }).then(res => res.json()).then(data => {
+                if (data.status === "success") {
+                    alert("Bargain request submitted!");
+                    closeBargainModal();
+                }
+            });
+            return;
+        }
+        alert(`${action.charAt(0).toUpperCase() + action.slice(1)} action submitted for ${currentBargainProduct.name}`);
+        closeBargainModal();
+    }
+
+    let currentUpdateProductId = null;
+
+function openUpdateModal(productId) {
+    currentUpdateProductId = productId;
+    const product = products.find(p => p.id === productId);
+
+    document.getElementById("currentMinQty").innerText = product.min_quantity ?? "—";
+    document.getElementById("currentMinQtyUnit").innerText = product.unit || "kg";
+    document.getElementById("currentMinPrice").innerText = product.min_price !== undefined && product.min_price !== null
+        ? parseFloat(product.min_price).toFixed(2)
+        : "—";
+
+    document.getElementById("updateMinQty").value = product.min_quantity || "";
+    document.getElementById("updateMinPrice").value = product.min_price || "";
+    document.getElementById("updateError").style.display = "none";
+    document.getElementById("updateQtyUnit").value = product && product.unit ? product.unit : "kg";
+    document.getElementById("updateModal").style.display = "block";
+}
+function closeUpdateModal() {
+    document.getElementById("updateModal").style.display = "none";
+}
+
+function saveBargainSetting() {
+    const minQty = parseInt(document.getElementById("updateMinQty").value);
+    const minPrice = parseFloat(document.getElementById("updateMinPrice").value);
+    const unit = document.getElementById("updateQtyUnit").value;    
+    const errorMsg = document.getElementById("updateError");
+
+    if (!minQty || !minPrice || minQty <= 0 || minPrice <= 0) {
+        errorMsg.innerText = "Please enter valid minimum quantity and price.";
+        errorMsg.style.display = "block";
+        return;
+    }
+    errorMsg.style.display = "none";
+
+    fetch("/save_bargain_setting/", {
+        method: "POST",
+        headers: {"Content-Type": "application/x-www-form-urlencoded"},
+        body: `product_id=${currentUpdateProductId}&min_quantity=${minQty}&min_price=${minPrice}&unit=${unit}`
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            alert("Bargain settings updated!");
+            closeUpdateModal();
+        } else {
+            alert(data.error || "Failed to update bargain settings.");
+        }
+    });
+}
+
+    function renderProducts(filtered = products) {
+    const grid = document.getElementById("productGrid");
+    grid.innerHTML = "";
+
+    filtered.forEach(p => {
+        const card = document.createElement("div");
+        card.className = "product-card";
+        card.innerHTML = `
+            <img src="${p.image}" alt="${p.name}" />
+            <h4>${p.name}</h4>
+            <p>$${parseFloat(p.price).toFixed(2)}</p>
+            <div class="action-buttons">
+                ${
+                    userRole === "seller"
+                    ? `<div class="action-button" title="Update bargain settings" onclick='openUpdateModal(${p.id})'>
+        Update
+       </div>`
+                    : `
+            <div class="action-button" title="Place a bid on this product" onclick="alert('Bid feature coming soon!')">
+                <img src="{% static 'core/images/bid.png' %}" alt="Bid Icon" /> Bid
+            </div>
+            <div class="action-button" title="Negotiate a bargain on this product" onclick='bargainOnProduct(JSON.parse(decodeURIComponent("${encodeURIComponent(JSON.stringify(p))}")))'>
+                <img src="{% static 'core/images/bargain.png' %}" alt="Bargain Icon" /> Bargain
+            </div>
+        `
+                }
+            </div>
+        `;
+        grid.appendChild(card);
+    });
+}
+
+
+    function filterProducts() {
+        const category = document.getElementById("categorySelect").value.toLowerCase();
+        const searchText = document.getElementById("searchText").value.toLowerCase();
+
+        const filtered = products.filter(p =>
+            (category === "" || p.category === category) &&
+            p.name.toLowerCase().includes(searchText)
+        );
+
+        renderProducts(filtered);
+    }
+
+    renderProducts();
+</script>
+<script src="{% static 'core/js/navigation.js' %}"></script>
+</body>
+</html>
+{% endblock %}

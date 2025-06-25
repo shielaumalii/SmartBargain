@@ -1,0 +1,117 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Smart Bargain - Login{% endblock %}
+
+{% block extra_css %}
+<style>
+    .container {
+        max-width: 700px;
+        margin: auto;
+    }
+    form input {
+        width: 100%;
+        padding: 0.75em;
+        margin-bottom: 1em;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+    .button {
+        margin: 0.5em 0;
+        padding: 0.6em 1.5em;
+    }
+    .row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1em;
+    }
+    .col-6 {
+        flex: 1 1 48%;
+    }
+    .col-12 {
+        flex: 1 1 100%;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <header>
+        <h2>Login / Register</h2>
+        <p>Access Smart Bargain services as a Buyer or Seller</p>
+    </header>
+
+    <!-- ✅ MESSAGES SECTION -->
+    {% if messages %}
+      <ul>
+        <ul>
+            {% for message in messages %}
+            {% if "error" in message.tags %}
+                <li style="color: red;">{{ message }}</li>
+            {% else %}
+                <li style="color: green;">{{ message }}</li>
+            {% endif %}
+            {% endfor %}
+        </ul>
+            {% endif %}
+
+    <!-- Login Section -->
+    <section>
+        <h3>Login</h3>
+        <form method="post" action="{% url 'handle_login' %}">
+            {% csrf_token %}
+            <input type="email" name="email" placeholder="Email" required />
+            <input type="password" name="password" placeholder="Password" required />
+            <input type="submit" class="button" value="Login" />
+        </form>
+    </section>
+
+    <hr />
+
+    <!-- Register Role Selection -->
+    <section>
+        <h3>Register</h3>
+        <div style="margin-bottom: 1em;">
+            <button class="button" type="button" onclick="showRegisterForm('buyer')">Buyer Registration</button>
+            <button class="button" type="button" onclick="showRegisterForm('seller')">Seller Registration</button>
+        </div>
+
+        <!-- Common Registration Form -->
+        <form id="registerForm" method="post" action="{% url 'handle_register' %}" style="display: none;">
+            {% csrf_token %}
+            <input type="hidden" name="role" id="userRole" />
+            <div class="row">
+                <div class="col-6">
+                    <input type="text" name="username" placeholder="Username" required />
+                </div>
+                <div class="col-6">
+                    <input type="email" name="email" placeholder="Email" required />
+                </div>
+                <div class="col-6">
+                    <input type="password" name="password" placeholder="Password" required />
+                </div>
+                <div class="col-6">
+                    <input type="password" name="confirm_password" placeholder="Confirm Password" required />
+                </div>
+                <div class="col-12">
+                    <input type="submit" class="button" value="Register" />
+                    <button type="button" class="button" onclick="hideRegisterForm()">Cancel</button>
+                </div>
+            </div>
+        </form>
+    </section>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function showRegisterForm(role) {
+        document.getElementById('userRole').value = role;
+        document.getElementById('registerForm').style.display = 'block';
+    }
+
+    function hideRegisterForm() {
+        document.getElementById('registerForm').style.display = 'none';
+        document.getElementById('userRole').value = '';
+    }
+</script>
+{% endblock %}

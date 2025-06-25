@@ -1,0 +1,93 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Smart Bargain - User Dashboard{% endblock %}
+
+{% block content %}
+<div class="wrapper">
+    <div class="container" id="main">
+        <div class="row gtr-150">
+            <div class="col-8 col-12-narrower">
+                <article id="content">
+                    <header>
+                        <h2>User Dashboard</h2>
+                        <p>Manage your profile, negotiations, orders, and reviews all in one place.</p>
+                    </header>
+
+                    <section>
+                        <h3>My Negotiations</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Your Offer</th>
+                                    <th>Seller Response</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Wireless Headphones</td>
+                                    <td>$75</td>
+                                    <td>$80 (Counteroffer)</td>
+                                    <td>Negotiation Open</td>
+                                    <td><a href="product-details.html">Respond</a></td>
+                                </tr>
+                                <tr>
+                                    <td>Smartphone Case</td>
+                                    <td>$15</td>
+                                    <td>Accepted</td>
+                                    <td>Completed</td>
+                                    <td><a href="orders.html">View Order</a></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </section>
+
+                    <section>
+                        <h3>Order Tracking</h3>
+                        <ul>
+                            <li>Order #12345 - Processing</li>
+                            <li>Order #12346 - Shipped</li>
+                        </ul>
+                        <a href="orders.html" class="button small">View All Orders</a>
+                    </section>
+
+                    <section>
+                        <h3>Reviews & Ratings</h3>
+                        <ul>
+                            <li>Wireless Headphones - 5 stars</li>
+                            <li>Smartphone Case - 4 stars</li>
+                        </ul>
+                        <a href="reviews.html" class="button small">Manage Reviews</a>
+                    </section>
+                </article>
+            </div>
+
+            <div class="col-4 col-12-narrower">
+                <section id="sidebar">
+                    <section>
+                        <header>
+                            <h3>Account Info</h3>
+                        </header>
+                        <p><strong>Username:</strong> johndoe</p>
+                        <p><strong>Email:</strong> johndoe@example.com</p>
+                        <p><a href="profile.html" class="button small">Edit Profile</a></p>
+                    </section>
+
+                    <section>
+                        <header>
+                            <h3>Notifications</h3>
+                        </header>
+                        <ul>
+                            <li>New counteroffer on Wireless Headphones</li>
+                            <li>Your offer on Smartphone Case was accepted</li>
+                        </ul>
+                        <a href="notifications.html" class="button small">View All</a>
+                    </section>
+                </section>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

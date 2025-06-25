@@ -1,0 +1,89 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Smart Bargain - Home{% endblock %}
+
+{% block content %}
+<div class="wrapper">
+    <div class="container" id="main">
+        <div class="row gtr-150">
+            <div class="col-8 col-12-narrower">
+
+                <!-- Content -->
+                <article id="content">
+                    <header>
+                        <h2>Welcome to Smart Bargain</h2>
+                        <p>An innovative e-commerce platform that brings the excitement of negotiation to online shopping.</p>
+                    </header>
+                    <a href="#" class="image featured"><img src="{% static 'core/images/featured-products.jpg' %}" alt="Featured Products" /></a>
+                    <p>Smart Bargain combines traditional market haggling with modern digital commerce. Customers and sellers can directly negotiate prices on eligible products, building stronger buyer-seller relationships.</p>
+                    <p>Explore featured products, discover our brand story, and start bargaining today to get the best deals.</p>
+                </article>
+
+            </div>
+            <div class="col-4 col-12-narrower">
+
+                <!-- Sidebar -->
+                <section id="sidebar">
+                    <section>
+                        <header>
+                            <h3>Why Choose Smart Bargain?</h3>
+                        </header>
+                        <p>Enjoy a unique shopping experience with live negotiation, transparent price history, and manual seller approvals ensuring fair deals.</p>
+                        <ul class="actions">
+                            <li><a href="{% url 'products' %}" class="button">Shop Now</a></li>
+                        </ul>
+                    </section>
+                    <section>
+                        <a href="#" class="image featured"><img src="{% static 'core/images/brandstory.png' %}" alt="Our Brand Story" /></a>
+                        <header>
+                            <h3>Our Brand Story</h3>
+                        </header>
+                        <p>Inspired by traditional bargaining cultures, we strive to bridge the gap between in-person negotiation and digital commerce with fairness and transparency.</p>
+                    </section>
+                </section>
+
+            </div>
+        </div>
+
+        <div class="row features">
+            <section class="col-4 col-12-narrower feature">
+                <div class="image-wrapper first">
+                    <a href="{% url 'products' %}" class="image featured"><img src="{% static 'core/images/catelog.jpg' %}" alt="Product Catalog" /></a>
+                </div>
+                <header>
+                    <h3>Explore Our Catalog</h3>
+                </header>
+                <p>Browse a wide variety of products with advanced filtering and search options to find exactly what you want.</p>
+                <ul class="actions">
+                    <li><a href="{% url 'products' %}" class="button">Browse Catalog</a></li>
+                </ul>
+            </section>
+            <section class="col-4 col-12-narrower feature">
+                <div class="image-wrapper">
+                    <a href="{% url 'dashboard' %}" class="image featured"><img src="{% static 'core/images/dashboard.jpg' %}" alt="User Dashboard" /></a>
+                </div>
+                <header>
+                    <h3>Your Dashboard</h3>
+                </header>
+                <p>Track your orders, review negotiation history, and manage your profile all in one place.</p>
+                <ul class="actions">
+                    <li><a href="{% url 'dashboard' %}" class="button">Go to Dashboard</a></li>
+                </ul>
+            </section>
+            <section class="col-4 col-12-narrower feature">
+                <div class="image-wrapper">
+                    <a href="{% url 'negotiate' %}" class="image featured"><img src="{% static 'core/images/negotiate.jpg' %}" alt="Negotiation Feature" /></a>
+                </div>
+                <header>
+                    <h3>Negotiate Deals</h3>
+                </header>
+                <p>Use our unique bargaining system to propose offers and receive counteroffers directly from sellers.</p>
+                <ul class="actions">
+                    <li><a href="{% url 'negotiate' %}" class="button">Start Negotiating</a></li>
+                </ul>
+            </section>
+        </div>
+    </div>
+</div>
+{% endblock %}
