@@ -346,9 +346,14 @@
     }
 
     function goToPayment() {
-        const qty = parseInt(document.getElementById("modalQty").value);
-        const productId = currentProduct.id;
+    const qty = parseInt(document.getElementById("modalQty").value);
+    const productId = currentProduct.id;
 
+    // First, close the payment modal to give it time before UI changes
+    closePaymentModal();
+
+    // Delay the fetch slightly to let UI update
+    setTimeout(() => {
         fetch("/purchase_product/", {
             method: "POST",
             headers: {
@@ -360,11 +365,16 @@
         .then(response => response.json())
         .then(data => {
             alert(data.message || "Purchase complete.");
-            closeConfirmModal();
-            closeModal();
-            renderProducts();
-        }, 100);  // delay to let alert box close properly
-    }
+            closeModal(); // purchase modal
+            closeConfirmModal(); // confirm modal
+            fetchProductsFromServer(); // Refresh product grid
+        })
+        .catch(error => {
+            alert("Something went wrong. Please try again.");
+            console.error(error);
+        });
+    }, 100); // 100ms delay to allow UI updates
+}
 
     function openCatalogModal(product) {
         currentCatalogProduct = product;
@@ -432,13 +442,13 @@
                 "Content-Type": "application/x-www-form-urlencoded",
                 "X-CSRFToken": getCSRFToken()
             },
-            body: `product_id=${productId}&quantity=${qty}&price=${price}&per=${encodeURIComponent(per)}`
+            body: `product_id=${productId}&quantity=${qty}&price=${price}&per=${encodeURIComponent(per)}&unit=${encodeURIComponent(unit)}`
         })
         .then(response => response.json())
         .then(data => {
             alert(data.success ? "Product updated." : "Error: " + data.error);
             closeEditModal();
-            renderProducts();
+			fetchProductsFromServer(); //reload product list to update real time
         });
     }
 
