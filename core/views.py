@@ -7,6 +7,11 @@ from core.backend.login import login_user, register_user
 from core.backend.product_manager import ProductManager
 from core.backend.bargain_factory import BargainFactory
 from core.backend.database import create_connection
+from core.backend.dashboard import get_orders_for_user
+from core.backend.dashboard import get_negotiation_tasks
+from core.backend.dashboard import save_negotiation_response
+from core.backend.dashboard import get_negotiation_dashboard_data
+from core.backend.dashboard import update_negotiation_dashboard_response 
 
 def login_view(request):
     return render(request, "core/login.html")
@@ -16,10 +21,9 @@ def products(request):
         return redirect('login')
     return render(request, 'core/products.html')
 
-    
 def homepage(request):
     return render(request, 'core/homepage.html')
-    
+
 def negotiate(request):
     if 'username' not in request.session:
         return redirect('login')
@@ -27,11 +31,13 @@ def negotiate(request):
         "role": request.session.get("role", "buyer"),
     })
 
-
 def dashboard(request):
     if 'username' not in request.session:
         return redirect('login')
-    return render(request, 'core/dashboard.html')
+    return render(request, 'core/dashboard.html', {
+        "email": request.session.get("email"),
+        "role": request.session.get("role")
+    })
 
 def handle_login(request):
     if request.method == "POST":
@@ -44,6 +50,7 @@ def handle_login(request):
             request.session['username'] = user['name']
             request.session['role'] = user['role']
             request.session['email'] = user['email']
+            request.session['user_id'] = user['id']
             messages.success(request, f"Welcome {user['name']} ({user['role']})")
             return redirect("homepage")
         else:
@@ -68,11 +75,11 @@ def handle_register(request):
         else:
             messages.error(request, msg)
         return redirect("login")
-        
+
 def logout_view(request):
     request.session.flush()
     return redirect("homepage")
-    
+
 # Add New Product (Seller Only)
 def add_product(request):
     if request.method == "POST" and request.session.get("role") == "seller":
@@ -82,10 +89,9 @@ def add_product(request):
         price = float(request.POST.get("price"))
         per = request.POST.get("per")
         unit = request.POST.get('unit', 'kg')
-        category = request.POST.get("category", "").lower()  # get category from form or JS
+        category = request.POST.get("category", "").lower()
         seller_email = request.session.get("email")
 
-        # Lookup seller_id
         from core.backend.database import create_connection
         conn = create_connection()
         cursor = conn.cursor()
@@ -99,15 +105,16 @@ def add_product(request):
         return JsonResponse({"success": True})
     return JsonResponse({"success": False, "error": "Unauthorized or bad request"})
 
-# Edit Product (Seller Only)
+# Edit Product (Seller Only) — FIXED TO INCLUDE UNIT
 def edit_product(request):
     if request.method == "POST" and request.session.get("role") == "seller":
         product_id = int(request.POST.get("product_id"))
         qty = int(request.POST.get("quantity"))
         price = float(request.POST.get("price"))
         per = request.POST.get("per")
+        unit = request.POST.get("unit")
 
-        ProductManager.update_product(product_id, qty, price, per)
+        ProductManager.update_product(product_id, qty, price, per, unit)
         return JsonResponse({"success": True})
     return JsonResponse({"success": False, "error": "Unauthorized or bad request"})
 
@@ -122,13 +129,26 @@ def delete_product(request):
 # Purchase Product (Buyer Only)
 def purchase_product(request):
     if request.method == "POST" and request.session.get("role") == "buyer":
-        product_id = int(request.POST.get("product_id"))
-        quantity = int(request.POST.get("quantity"))
+        try:
+            product_id = int(request.POST.get("product_id"))
+            quantity = int(request.POST.get("quantity"))
 
-        success, msg = ProductManager.purchase_product(product_id, quantity)
-        return JsonResponse({"success": success, "message": msg})
-    return JsonResponse({"success": False, "error": "Unauthorized or bad request"})
-        
+            email = request.session.get("email")
+            conn = create_connection()
+            cursor = conn.cursor()
+            cursor.execute("SELECT id FROM users WHERE email = ?", (email,))
+            row = cursor.fetchone()
+            if not row:
+                return JsonResponse({"success": False, "message": "User not found"})
+
+            buyer_id = row[0]
+            success, msg = ProductManager.purchase_product(product_id, quantity, buyer_id)
+            return JsonResponse({"success": success, "message": msg})
+        except Exception as e:
+            return JsonResponse({"success": False, "message": f"Server error: {str(e)}"})
+
+    return JsonResponse({"success": False, "message": "Unauthorized or bad request"})
+
 def get_products(request):
     products = ProductManager.get_all_products()
     product_list = []
@@ -140,10 +160,10 @@ def get_products(request):
             "qty": p[3],
             "price": p[4],
             "per": p[5],
-            "category": p[6] if len(p) > 6 else "uncategorized"  # updated to pull actual category
+            "category": p[6] if len(p) > 6 else "uncategorized"
         })
     return JsonResponse({"products": product_list})
-    
+
 def negotiate_products(request):
     products = ProductManager.get_all_products()
     product_list = []
@@ -158,7 +178,17 @@ def negotiate_products(request):
             "category": p[6]
         })
     return JsonResponse({"products": product_list})
+    
+def get_negotiation_dashboard(request):
+    if 'user_id' not in request.session or 'role' not in request.session:
+        return JsonResponse({"error": "Not logged in"}, status=403)
 
+    user_id = request.session['user_id']
+    role = request.session['role']
+
+    data = get_negotiation_dashboard_data(user_id, role)
+    return JsonResponse({"records": data})
+    
 @csrf_exempt
 def save_bargain_setting(request):
     if request.method == "POST":
@@ -166,20 +196,18 @@ def save_bargain_setting(request):
         min_quantity = int(request.POST.get("min_quantity"))
         min_price = float(request.POST.get("min_price"))
 
-        # Always fetch the unit from the products table
         conn = create_connection()
         cursor = conn.cursor()
         cursor.execute("SELECT unit FROM products WHERE id = ?", (product_id,))
         row = cursor.fetchone()
         if not row:
             return JsonResponse({"success": False, "error": "Product not found"})
-        unit = row[0]  # This is the product's unit
+        unit = row[0]
 
-        # Save the bargain setting (unit is not stored in bargain_settings)
         setting = BargainFactory.create_setting(product_id, min_quantity, min_price)
         setting.save()
 
-        return JsonResponse({"success": True, "unit": unit})  # Optionally return the unit for frontend display
+        return JsonResponse({"success": True, "unit": unit})
 
     return JsonResponse({"success": False, "error": "Invalid request"})
 
@@ -187,14 +215,13 @@ def save_bargain_setting(request):
 def save_bargain_request(request):
     if request.method == "POST":
         data = json.loads(request.body)
-        # Use session or dummy user_id for now
         user_id = request.session.get("user_id", 1)
         req = BargainFactory.create_request(
             data["product_id"], user_id, data["quantity"], data["price"]
         )
         req.save()
         return JsonResponse({"status": "success"})
-    
+
 @csrf_exempt
 def get_bargain_setting_with_unit(request, bargain_setting_id):
     conn = create_connection()
@@ -207,7 +234,6 @@ def get_bargain_setting_with_unit(request, bargain_setting_id):
     """, (bargain_setting_id,))
     row = cursor.fetchone()
     if row:
-        # row = (id, product_id, min_quantity, min_price, unit)
         return JsonResponse({
             "id": row[0],
             "product_id": row[1],
@@ -217,30 +243,78 @@ def get_bargain_setting_with_unit(request, bargain_setting_id):
         })
     return JsonResponse({"error": "Not found"}, status=404)
 
+def get_negotiation_tasks_view(request):
+    if 'email' not in request.session or 'role' not in request.session:
+        return JsonResponse({"tasks": []})
+
+    email = request.session['email']
+    role = request.session['role']
+    tasks = get_negotiation_tasks(email, role)
+    return JsonResponse({"tasks": tasks})
+
+
+def get_orders(request):
+    if 'email' not in request.session or 'role' not in request.session:
+        return JsonResponse({"success": False, "message": "Unauthorized"}, status=403)
+
+    email = request.session['email']
+    role = request.session['role']
+
+    orders = get_orders_for_user(email, role)
+    return JsonResponse({"orders": orders})
+
+
 @csrf_exempt
-def get_negotiate_products(request):
-    print("get_negotiate_products CALLED")
-    conn = create_connection()
-    cursor = conn.cursor()
-    cursor.execute("""
-        SELECT p.id, p.name, p.image_url, p.price, p.unit, p.category,
-               b.min_quantity, b.min_price, b.unit
-        FROM products p
-        LEFT JOIN bargain_settings b ON p.id = b.product_id
-    """)
-    products = []
-    for row in cursor.fetchall():
-        print("DEBUG ROW:", row)
-        product = {
-            "id": row[0],
-            "name": row[1],
-            "image": row[2],
-            "price": row[3],
-            "unit": row[4],
-            "category": row[5],
-            "min_quantity": row[6],
-            "min_price": row[7],
-            "bargain_unit": row[8], 
-        }
-        products.append(product)
-    return JsonResponse({"products": products})
+def submit_negotiation_response(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+
+        bargain_id = data.get("bargain_id")
+        quantity = data.get("quantity")
+        price = data.get("price")
+        comment = data.get("comment")
+        status = data.get("status")
+
+        # Get seller_id from session
+        seller_id = request.session.get("user_id")
+        if not request.session.get("user_id"):
+            return JsonResponse({"error": "User not logged in"}, status=403)
+
+
+        # Call backend function with correct IDs
+        success, message = save_negotiation_response(
+            bargain_id, quantity, price, comment, status
+        )
+
+        if success:
+            return JsonResponse({"message": message})
+        else:
+            return JsonResponse({"error": message}, status=400)
+
+    return JsonResponse({"error": "Invalid method"}, status=405)
+
+@csrf_exempt
+def update_negotiation_dashboard(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+
+            row_id = data.get("negotiation_id")  # this should be record.id from your table
+            quantity = data.get("quantity")
+            price = data.get("price")
+            comment = data.get("comment")
+            action = data.get("status")
+
+            success, message = update_negotiation_dashboard_response(
+                row_id, quantity, price, comment, action
+            )
+
+            if success:
+                return JsonResponse({"message": message})
+            else:
+                return JsonResponse({"error": message}, status=400)
+
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+
+    return JsonResponse({"error": "Invalid request method"}, status=405)

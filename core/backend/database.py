@@ -24,10 +24,10 @@ def create_tables():
     cursor = conn.cursor()
     
     # Drop tables if they exist (order matters due to foreign keys)
-    cursor.execute("DROP TABLE IF EXISTS bargain_requests")
-    cursor.execute("DROP TABLE IF EXISTS bargain_settings")
-    cursor.execute("DROP TABLE IF EXISTS products")
-    cursor.execute("DROP TABLE IF EXISTS users")
+    #cursor.execute("DROP TABLE IF EXISTS bargain_requests")
+    #cursor.execute("DROP TABLE IF EXISTS bargain_settings")
+    #cursor.execute("DROP TABLE IF EXISTS products")
+    #cursor.execute("DROP TABLE IF EXISTS users")
 
 
 
@@ -77,10 +77,42 @@ def create_tables():
             user_id INTEGER NOT NULL,
             quantity INTEGER NOT NULL,
             price REAL NOT NULL,
-            status TEXT NOT NULL DEFAULT 'pending',
+            status TEXT NOT NULL DEFAULT 'Pending Seller Approval',
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY(product_id) REFERENCES products(id),
             FOREIGN KEY(user_id) REFERENCES users(id)
+        )
+    ''')
+    # Negotiation dashboard tracking table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS negotiation_dashboard (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            bargain_id INTEGER NOT NULL,
+            product_id INTEGER NOT NULL,             
+            proposed_quantity INTEGER,
+            proposed_price REAL,
+            comment TEXT,
+            status TEXT,
+            buyer_id INTEGER,
+            seller_id INTEGER,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(bargain_id) REFERENCES bargain_requests(id),
+            FOREIGN KEY(product_id) REFERENCES products(id),
+            FOREIGN KEY(buyer_id) REFERENCES users(id),
+            FOREIGN KEY(seller_id) REFERENCES users(id)
+        )
+    ''')
+     # Orders table to track confirmed purchases
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS orders (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            product_id INTEGER NOT NULL,
+            buyer_id INTEGER NOT NULL,
+            quantity INTEGER NOT NULL,
+            price REAL NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(product_id) REFERENCES products(id),
+            FOREIGN KEY(buyer_id) REFERENCES users(id)
         )
     ''')
 

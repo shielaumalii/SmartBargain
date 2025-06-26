@@ -38,7 +38,8 @@ class ProductManager:
         conn.commit()
 
     @staticmethod
-    def purchase_product(product_id, quantity):
+    @staticmethod
+    def purchase_product(product_id, quantity, buyer_id):
         conn = create_connection()
         cursor = conn.cursor()
 
@@ -52,8 +53,20 @@ class ProductManager:
         if current_qty < quantity:
             return False, "Insufficient stock"
 
-        # Reduce quantity
+        # Reduce stock
         new_qty = current_qty - quantity
         cursor.execute("UPDATE products SET quantity = ? WHERE id = ?", (new_qty, product_id))
+
+        # Get product price
+        cursor.execute("SELECT price FROM products WHERE id = ?", (product_id,))
+        price_row = cursor.fetchone()
+        price = price_row[0] if price_row else 0.0
+
+        # Insert into orders table
+        cursor.execute("""
+            INSERT INTO orders (product_id, buyer_id, quantity, price)
+               VALUES (?, ?, ?, ?)
+        """, (product_id, buyer_id, quantity, price * quantity))
+
         conn.commit()
         return True, "Purchase successful"
