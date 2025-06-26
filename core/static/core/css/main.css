@@ -2107,7 +2107,7 @@ input, select, textarea {
 	}
 
 	.homepage #header-wrapper {
-		padding: 10em 0 6em 0;
+		padding: 5em 0 6em 0;
 		background-size: 128px 128px, 100% 100%, auto;
 	}
 
@@ -3120,3 +3120,44 @@ body {
     margin-bottom: 0 !important;
     padding-bottom: 0 !important;
 }
+
+#searchText, #categorySelect {
+    width: 400px;     /* Set your desired width */
+    height: 40px;     /* Set your desired height */
+    padding: 8px 12px; /* Optional: for better appearance */
+    box-sizing: border-box; /* Ensures padding is included in width */
+    font-size: 16px;   /* Optional: for better readability */
+    margin-bottom: 10px; /* Optional: spacing between fields */
+}
+
+.feature-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 30px;
+	margin-top: 0; 
+}
+
+.feature-logo {
+    width: 200px; /* Adjust as needed */
+    height: auto;
+    margin-right: 24px; /* Space between logo and text */
+}
+
+.feature-header-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.feature-header-content h2 {
+    font-size: 3rem;   /* Adjust as needed, e.g., 40px or 2.5em */
+    font-weight: 700;    /* Optional: makes the title bolder */
+	margin-bottom: 15px;
+	margin-top: 0;
+}
+
+.feature-header-content p {
+    font-size: 2rem;  /* Adjust as needed, e.g., 20px or 1.25em */
+    color: #f48c8c;      /* Optional: adjust color if you want */
+}
+

@@ -67,17 +67,21 @@
 <div class="wrapper">
     <div class="container" id="main">
         <article id="content">
-            <header>
-                <h2>Product Catalog</h2>
-                <p>Order fresh products instantly and enjoy healthy shopping!</p>
+            <header class="feature-header">
+                <img src="{% static 'core/images/Smart_Bargain_Logo.png' %}"  alt="Feature Logo" class="feature-logo">
+                <div class="feature-header-content">
+                    <h2>Product Catalog</h2>
+                    <p>Order fresh products instantly and enjoy healthy shopping!</p>
+                </div>
             </header>
+
 
             <!-- Product Search -->
             <section>
                 <form id="product-search" onsubmit="event.preventDefault(); filterProducts();">
-                    <input type="text" id="searchText" placeholder="Search products..." />
+                    <input type="text" id="searchText" placeholder="Search Products" />
                     <select id="categorySelect" onchange="filterProducts()">
-                        <option value="">All Categories</option>
+                        <option value="">Select Product Category</option>
                         <option value="vegetables">Vegetables</option>
                         <option value="fruits">Fruits</option>
                     </select>

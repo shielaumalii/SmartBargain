@@ -127,17 +127,20 @@
             <div class="row gtr-150">
                 <div class="col-12">
                     <article id="content">
-                        <header>
-                            <h2>Bid or Bargain</h2>
-                            <p>Fresh vegetables and fruits deliver daily nutrition... use the Bid feature or Bargain!</p>
+                        <header class="feature-header">
+                            <img src="{% static 'core/images/Smart_Bargain_Logo.png' %}"  alt="Feature Logo" class="feature-logo">
+                            <div class="feature-header-content">
+                                <h2>Bid or Bargain</h2>
+                                <p>Fresh vegetables and fruits deliver daily nutrition... use the Bid feature or Bargain!</p>
+                            </div>
                         </header>
 
                         <!-- Filters -->
                         <section>
                             <form id="product-search" onsubmit="event.preventDefault(); filterProducts();">
-                                <input type="text" id="searchText" placeholder="Search products..." />
+                                <input type="text" id="searchText" placeholder="Search Products" />
                                 <select id="categorySelect" onchange="filterProducts()">
-                                    <option value="">All Categories</option>
+                                    <option value="">Search Product Category</option>
                                     <option value="vegetables">Vegetables</option>
                                     <option value="fruits">Fruits</option>
                                 </select>
