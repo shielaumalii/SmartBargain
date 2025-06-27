@@ -1,4 +1,6 @@
 {% extends 'core/base.html' %}
+{% load static %}
+
 
 {% block title %}Smart Bargain - User Dashboard{% endblock %}
 <style>
@@ -20,6 +22,13 @@
         <div class="row gtr-150">
             <div class="col-12">
                 <article id="content">
+                    <header class="feature-header">
+                        <img src="{% static 'core/images/Smart_Bargain_Logo.png' %}"  alt="Feature Logo" class="feature-logo">
+                        <div class="feature-header-content">
+                            <h2>Your Dashboard</h2>
+                            <p>Track, analyze, and manage your activity—all in one place!</p>
+                        </div>
+                    </header>
 
                     {% if request.session.role == "seller" %}
                     <!-- Seller-only: New Negotiations -->
