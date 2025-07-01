@@ -11,11 +11,15 @@
 
                 <!-- Content -->
                 <article id="content">
+                    <a href="#" class="image featured"><img src="{% static 'core/images/banner1.png' %}" alt="Banner" /></a>
                     <header>
-                        <h2>Welcome to Smart Bargain</h2>
+                        <h2>Welcome to Smart Bargain!</h2>
                         <p>An innovative e-commerce platform that brings the excitement of negotiation to online shopping.</p>
                     </header>
                     <a href="#" class="image featured"><img src="{% static 'core/images/featured-products.jpg' %}" alt="Featured Products" /></a>
+                    <header>
+                            <h3>Shop Smart, Bargain Better!</h3>
+                        </header>
                     <p>Smart Bargain combines traditional market haggling with modern digital commerce. Customers and sellers can directly negotiate prices on eligible products, building stronger buyer-seller relationships.</p>
                     <p>Explore featured products, discover our brand story, and start bargaining today to get the best deals.</p>
                 </article>
@@ -35,11 +39,13 @@
                         </ul>
                     </section>
                     <section>
-                        <a href="#" class="image featured"><img src="{% static 'core/images/brandstory.png' %}" alt="Our Brand Story" /></a>
+                        <a href="#" class="image featured"><img src="{% static 'core/images/Smart_Bargain_Logo.png' %}" alt="Our Brand Story" /></a>
                         <header>
                             <h3>Our Brand Story</h3>
                         </header>
                         <p>Inspired by traditional bargaining cultures, we strive to bridge the gap between in-person negotiation and digital commerce with fairness and transparency.</p>
+                        <p>Building on our tagline, "Shop Smart, Bargain Better," we empower our customers to make informed choices and secure the best deals with confidence. </p>
+                        <p>At Smart Bargain, we believe that shopping should be both savvy and rewarding—bringing the excitement of negotiation into the convenience of modern online shopping.</p>
                     </section>
                 </section>
 
@@ -49,7 +55,7 @@
         <div class="row features">
             <section class="col-4 col-12-narrower feature">
                 <div class="image-wrapper first">
-                    <a href="{% url 'products' %}" class="image featured"><img src="{% static 'core/images/catelog.jpg' %}" alt="Product Catalog" /></a>
+                    <a href="{% url 'products' %}" class="feature-img"><img src="{% static 'core/images/catalog_homepage.png' %}" alt="Product Catalog" /></a>
                 </div>
                 <header>
                     <h3>Explore Our Catalog</h3>
@@ -61,7 +67,7 @@
             </section>
             <section class="col-4 col-12-narrower feature">
                 <div class="image-wrapper">
-                    <a href="{% url 'dashboard' %}" class="image featured"><img src="{% static 'core/images/dashboard.jpg' %}" alt="User Dashboard" /></a>
+                    <a href="{% url 'dashboard' %}" class="feature-img"><img src="{% static 'core/images/dashboard_homepage.png' %}" alt="User Dashboard" /></a>
                 </div>
                 <header>
                     <h3>Your Dashboard</h3>
@@ -73,7 +79,7 @@
             </section>
             <section class="col-4 col-12-narrower feature">
                 <div class="image-wrapper">
-                    <a href="{% url 'negotiate' %}" class="image featured"><img src="{% static 'core/images/negotiate.jpg' %}" alt="Negotiation Feature" /></a>
+                    <a href="{% url 'negotiate' %}" class="feature-img"><img src="{% static 'core/images/negotiate_homepage.png' %}" alt="Negotiation Feature" /></a>
                 </div>
                 <header>
                     <h3>Negotiate Deals</h3>
@@ -86,4 +92,35 @@
         </div>
     </div>
 </div>
+
+<style>
+/* Align the feature sections and buttons */
+.row.features {
+    display: flex !important;
+    justify-content: center;
+    align-items: stretch;
+    gap: 30px;
+    width: 100%;
+}
+
+.row.features > section.feature {
+    flex: 1 1 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 0;
+}
+
+.row.features .actions {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: auto;
+}
+
+.row.features .button {
+    min-width: 180px;
+    text-align: center;
+}
+</style>
 {% endblock %}

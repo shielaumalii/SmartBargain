@@ -1,93 +1,579 @@
 {% extends 'core/base.html' %}
+{% load static %}
+
 
 {% block title %}Smart Bargain - User Dashboard{% endblock %}
+<style>
+    #negotiationDashboardTable input[type="checkbox"] {
+        transform: scale(1.3);
+        cursor: pointer;
+    }
+    .selected-row {
+        background-color: #e0f7fa !important;
+    }
+    #negotiationDashboardTable tr {
+        cursor: pointer;
+    }
+</style>
 
 {% block content %}
 <div class="wrapper">
     <div class="container" id="main">
         <div class="row gtr-150">
-            <div class="col-8 col-12-narrower">
+            <div class="col-12">
                 <article id="content">
-                    <header>
-                        <h2>User Dashboard</h2>
-                        <p>Manage your profile, negotiations, orders, and reviews all in one place.</p>
+                    <header class="feature-header">
+                        <img src="{% static 'core/images/Smart_Bargain_Logo.png' %}"  alt="Feature Logo" class="feature-logo">
+                        <div class="feature-header-content">
+                            <h2>Your Dashboard</h2>
+                            <p>Track, analyze, and manage your activity—all in one place!</p>
+                        </div>
                     </header>
 
-                    <section>
-                        <h3>My Negotiations</h3>
-                        <table>
+                    {% if request.session.role == "seller" %}
+                    <!-- Seller-only: New Negotiations -->
+                    <article style="border: 1px solid #ccc; border-radius: 8px; padding: 16px; margin-bottom: 20px;">
+                        <header>
+                            <h2>New Negotiations</h2>
+                            <p>This is an accessible table. Review and manage your negotiations below.</p>
+                        </header>
+                        <table id="negotiationTaskTable" aria-label="Negotiation Tasks Table" style="width: 100%; border-collapse: collapse;">
                             <thead>
-                                <tr>
-                                    <th>Product</th>
-                                    <th>Your Offer</th>
-                                    <th>Seller Response</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
+                                <tr style="background-color: #f5f5f5;">
+                                    <th style="padding: 8px; text-align: left; font-weight: bold;">Product</th>
+                                    <th style="padding: 8px; text-align: right; font-weight: bold;">Quantity</th>
+                                    <th style="padding: 8px; text-align: right; font-weight: bold;">Price</th>
+                                    <th style="padding: 8px; text-align: center; font-weight: bold;">Status</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr>
-                                    <td>Wireless Headphones</td>
-                                    <td>$75</td>
-                                    <td>$80 (Counteroffer)</td>
-                                    <td>Negotiation Open</td>
-                                    <td><a href="product-details.html">Respond</a></td>
-                                </tr>
-                                <tr>
-                                    <td>Smartphone Case</td>
-                                    <td>$15</td>
-                                    <td>Accepted</td>
-                                    <td>Completed</td>
-                                    <td><a href="orders.html">View Order</a></td>
-                                </tr>
+                            <tbody id="negotiationTaskTableBody">
+                                <!-- Rows will be injected via JS -->
                             </tbody>
                         </table>
-                    </section>
+                        <div id="negotiationPaginationControls" style="margin-top: 10px; text-align: center;"></div>
+                    </article>
+                    {% endif %}
 
-                    <section>
-                        <h3>Order Tracking</h3>
-                        <ul>
-                            <li>Order #12345 - Processing</li>
-                            <li>Order #12346 - Shipped</li>
-                        </ul>
-                        <a href="orders.html" class="button small">View All Orders</a>
-                    </section>
+                    <!-- Negotiation Dashboard: Visible to All -->
+                    <article style="border: 1px solid #ccc; border-radius: 8px; padding: 16px; margin-top: 30px;">
+                        <header>
+                            <h2>Negotiation Dashboard</h2>
+                            <p>Review submitted negotiation responses below. Click a row to view and respond.</p>
+                        </header>
+						<!-- Filter by Status -->
+						<div style="margin-bottom: 10px;">
+						<label for="statusFilter"><strong>Filter by Status:</strong></label>
+						<select id="statusFilter" onchange="applyStatusFilter()" style="margin-left: 10px;">
+						<option value="all">All</option>
+						<option value="Active">Active</option>
+						<option value="Pending Buyer Approval">Pending Buyer Approval</option>
+						<option value="Pending Seller Approval">Pending Seller Approval</option>
+						<option value="Rejected">Rejected</option>
+						<option value="Cancelled">Cancelled</option>
+						</select>
+						</div>
 
-                    <section>
-                        <h3>Reviews & Ratings</h3>
-                        <ul>
-                            <li>Wireless Headphones - 5 stars</li>
-                            <li>Smartphone Case - 4 stars</li>
-                        </ul>
-                        <a href="reviews.html" class="button small">Manage Reviews</a>
-                    </section>
+                        <table id="negotiationDashboardTable" style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="background-color: #f5f5f5;">
+                                    <th style="width: 40px; text-align: center;">
+                                        <input type="checkbox" onclick="toggleSelectAll(this)" />
+                                    </th>
+                                    <th style="padding: 8px; text-align: left; font-weight: bold;">Product</th>
+                                    <th style="padding: 8px; text-align: right; font-weight: bold;">Qty</th>
+                                    <th style="padding: 8px; text-align: right; font-weight: bold;">Price</th>
+                                    <th style="padding: 8px; text-align: left; font-weight: bold;">Comment</th>
+                                    <th style="padding: 8px; text-align: center; font-weight: bold;">Status</th>
+                                    <th style="padding: 8px; text-align: left; font-weight: bold;">Buyer</th>
+                                    <th style="padding: 8px; text-align: left; font-weight: bold;">Seller</th>
+                                </tr>
+                            </thead>
+                            <tbody id="negotiationDashboardTableBody">
+                                <!-- JS will inject rows here -->
+                            </tbody>
+                        </table>
+                        <div id="negotiationDashboardPaginationControls" style="margin-top: 10px; text-align: center;"></div>
+                    </article>
+
+                    <!-- Shared Negotiation Modal for All Users -->
+                    <div id="negotiationModal" style="
+                        display: none;
+                        position: fixed;
+                        top: 10%;
+                        left: 50%;
+                        transform: translate(-50%, 0);
+                        width: 90%;
+                        max-width: 500px;
+                        max-height: 80vh;
+                        overflow-y: auto;
+                        background: white;
+                        border: 1px solid #ccc;
+                        border-radius: 10px;
+                        z-index: 1000;
+                        box-shadow: 0 4px 10px rgba(0,0,0,0.2);">
+                        
+                        <!-- Drag Handle -->
+                        <div id="modalHeader" style="cursor: move; background-color: #f0f0f0; padding: 10px; border-bottom: 1px solid #ccc;">
+                            <h3 style="margin: 0;">Negotiation Details</h3>
+                        </div>
+
+                        <!-- Modal Body -->
+                        <div style="padding: 20px;">
+                            <div><label><strong>Product:</strong></label><p id="modalProductName"></p></div>
+                            <div><label><strong>Status:</strong></label><p id="modalStatus"></p></div>
+                            <div><label><strong>Buyer:</strong></label><p id="modalBuyer"></p></div>
+                            <div><label><strong>Seller:</strong></label><p id="modalSeller"></p></div>
+
+                            <div style="margin-top: 10px;">
+                                <label>Quantity:</label>
+                                <input type="number" id="modalQuantity" style="width: 100%;" />
+                            </div>
+
+                            <div style="margin-top: 10px;">
+                                <label>Price:</label>
+                                <input type="number" step="0.01" id="modalPrice" style="width: 100%;" />
+                            </div>
+
+                            <div style="margin-top: 10px;">
+                                <label>Comments:</label>
+                                <textarea id="modalComments" rows="3" style="width: 100%;"></textarea>
+                            </div>
+
+                            <div style="margin-top: 20px; display: flex; flex-wrap: wrap; gap: 10px;">
+                                <button onclick="submitNegotiationResponse('accept')">Accept</button>
+                                <button onclick="submitNegotiationResponse('reject')">Reject</button>
+                                <button id="counterProposeBtn" onclick="submitNegotiationResponse('counter')" disabled>Counter Propose</button>
+                                <button onclick="submitNegotiationResponse('cancel')">Cancel</button>
+                                <button onclick="closeNegotiationModal()">Close Window</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Modal Backdrop -->
+                    <div id="modalBackdrop" style="
+                        display: none;
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        width: 100vw;
+                        height: 100vh;
+                        background: rgba(0,0,0,0.4);
+                        z-index: 999;"
+                        onclick="closeNegotiationModal()">
+                    </div>
+
+                    <!-- Orders Table -->
+                    <article style="border: 1px solid #ccc; border-radius: 8px; padding: 16px; margin-top: 20px;">
+                        <header>
+                            <h2 style="margin-top: 0;">Orders</h2>
+                        </header>
+                        <section>
+                            <table id="ordersTable" style="width: 100%; border-collapse: collapse;">
+                                <thead>
+                                    <tr>
+                                        <th style="padding: 8px; text-align: left; font-weight: bold;">Product</th>
+                                        <th style="padding: 8px; text-align: right; font-weight: bold;">Qty</th>
+                                        <th style="padding: 8px; text-align: right; font-weight: bold;">Price</th>
+                                        <th style="padding: 8px; text-align: center; font-weight: bold;">Status</th>
+                                        <th style="padding: 8px; text-align: center; font-weight: bold;">Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="ordersTableBody">
+                                    <!-- Order rows will be loaded via JS -->
+                                </tbody>
+                            </table>
+                        </section>
+                    </article>
+
                 </article>
-            </div>
-
-            <div class="col-4 col-12-narrower">
-                <section id="sidebar">
-                    <section>
-                        <header>
-                            <h3>Account Info</h3>
-                        </header>
-                        <p><strong>Username:</strong> johndoe</p>
-                        <p><strong>Email:</strong> johndoe@example.com</p>
-                        <p><a href="profile.html" class="button small">Edit Profile</a></p>
-                    </section>
-
-                    <section>
-                        <header>
-                            <h3>Notifications</h3>
-                        </header>
-                        <ul>
-                            <li>New counteroffer on Wireless Headphones</li>
-                            <li>Your offer on Smartphone Case was accepted</li>
-                        </ul>
-                        <a href="notifications.html" class="button small">View All</a>
-                    </section>
-                </section>
+                <div id="paginationControls" style="margin-top: 10px;"></div>
             </div>
         </div>
     </div>
 </div>
+
+
+<script>
+    const userEmail = "{{ request.session.email }}";
+    const userRole = "{{ request.session.role }}";
+
+    let originalQuantity = null;
+    let originalPrice = null;
+
+    function getCSRFToken() {
+        return document.cookie
+            .split("; ")
+            .find(row => row.startsWith("csrftoken="))
+            ?.split("=")[1];
+    }
+
+    function loadNegotiationTasks() {
+        fetch("/get_negotiation_tasks/")
+            .then(response => response.json())
+            .then(data => {
+                const allTasks = data.tasks || [];
+                const table = document.getElementById("negotiationTaskTableBody");
+                const paginationDiv = document.getElementById("negotiationPaginationControls");
+                const rowsPerPage = 5;
+                let currentPage = 1;
+
+                function renderTable(page) {
+                    table.innerHTML = "";
+                    const start = (page - 1) * rowsPerPage;
+                    const end = start + rowsPerPage;
+                    const pageTasks = allTasks.slice(start, end);
+
+                    if (pageTasks.length === 0) {
+                        table.innerHTML = "<tr><td colspan='3'>No negotiation tasks found.</td></tr>";
+                        return;
+                    }
+
+                    pageTasks.forEach(task => {
+                        const row = document.createElement("tr");
+                        row.innerHTML = `
+                            <td style="padding: 8px;">${task.product}</td>
+                            <td style="padding: 8px; text-align: right;">${task.quantity}</td>
+                            <td style="padding: 8px; text-align: right;">$${parseFloat(task.price).toFixed(2)}</td>
+                            <td style="padding: 8px; text-align: center;">${task.status}</td>
+                        `;
+                        row.style.cursor = "pointer";
+                        row.onclick = () => {
+                            openNegotiationModal(task);
+                        };
+                        table.appendChild(row);
+                    });
+                }
+
+                function renderPagination() {
+                    paginationDiv.innerHTML = "";
+                    const totalPages = Math.ceil(allTasks.length / rowsPerPage);
+                    for (let i = 1; i <= totalPages; i++) {
+                        const btn = document.createElement("button");
+                        btn.textContent = i;
+                        btn.style.margin = "0 4px";
+                        btn.disabled = i === currentPage;
+                        btn.onclick = () => {
+                            currentPage = i;
+                            renderTable(currentPage);
+                            renderPagination();
+                        };
+                        paginationDiv.appendChild(btn);
+                    }
+                }
+
+                renderTable(currentPage);
+                renderPagination();
+            })
+            .catch(error => {
+                console.error("Failed to load negotiation tasks:", error);
+            });
+    }
+
+    function loadOrders() {
+        fetch("/get_orders/")
+            .then(response => response.json())
+            .then(data => {
+                const orders = data.orders || [];
+                const rowsPerPage = 5;
+                const totalPages = Math.ceil(orders.length / rowsPerPage);
+                let currentPage = 1;
+
+                const table = document.getElementById("ordersTableBody");
+                const paginationDiv = document.getElementById("paginationControls") || document.createElement("div");
+                paginationDiv.id = "paginationControls";
+                paginationDiv.style.marginTop = "10px";
+                paginationDiv.style.textAlign = "center";
+                table.parentNode.after(paginationDiv);
+
+                function renderTable(page) {
+                    table.innerHTML = "";
+                    const start = (page - 1) * rowsPerPage;
+                    const end = start + rowsPerPage;
+                    const pageData = orders.slice(start, end);
+
+                    if (pageData.length === 0) {
+                        table.innerHTML = "<tr><td colspan='5'>No orders found.</td></tr>";
+                        return;
+                    }
+
+                    pageData.forEach(order => {
+                        const row = document.createElement("tr");
+                        row.innerHTML = `
+                            <td style="padding: 8px; text-align: left;">${order.product}</td>
+                            <td style="padding: 8px; text-align: right;">${order.qty}</td>
+                            <td style="padding: 8px; text-align: right;">$${parseFloat(order.price).toFixed(2)}</td>
+                            <td style="padding: 8px; text-align: center;">${order.status}</td>
+                            <td style="padding: 8px; text-align: center;">${new Date(order.date).toLocaleString()}</td>
+                        `;
+                        table.appendChild(row);
+                    });
+                }
+
+                function renderPagination() {
+                    paginationDiv.innerHTML = "";
+                    for (let i = 1; i <= totalPages; i++) {
+                        const btn = document.createElement("button");
+                        btn.textContent = i;
+                        btn.style.margin = "0 4px";
+                        btn.disabled = i === currentPage;
+                        btn.onclick = () => {
+                            currentPage = i;
+                            renderTable(currentPage);
+                            renderPagination();
+                        };
+                        paginationDiv.appendChild(btn);
+                    }
+                }
+
+                renderTable(currentPage);
+                renderPagination();
+            })
+            .catch(error => {
+                console.error("Failed to load orders:", error);
+            });
+    }
+
+    function openNegotiationModal(task) {
+        document.getElementById("modalProductName").innerText = task.product;
+        document.getElementById("modalQuantity").value = task.quantity;
+        document.getElementById("modalPrice").value = task.price || "";
+        document.getElementById("modalComments").value = task.comment || "";
+        document.getElementById("modalStatus").innerText = task.status || "";
+        document.getElementById("modalBuyer").innerText = task.buyer || "";
+        document.getElementById("modalSeller").innerText = task.seller || "";
+
+        originalQuantity = task.quantity;
+        originalPrice = parseFloat(task.price);
+
+        document.getElementById("negotiationModal").style.display = "block";
+        document.getElementById("modalBackdrop").style.display = "block";
+        window.currentNegotiationId = task.id;
+
+        document.getElementById("modalQuantity").addEventListener("input", checkCounterProposalValidity);
+        document.getElementById("modalPrice").addEventListener("input", checkCounterProposalValidity);
+
+        checkCounterProposalValidity();
+    }
+
+    function checkCounterProposalValidity() {
+        const newQty = parseInt(document.getElementById("modalQuantity").value);
+        const newPrice = parseFloat(document.getElementById("modalPrice").value);
+
+        const isQtyChanged = newQty !== originalQuantity;
+        const isPriceChanged = !isNaN(newPrice) && newPrice !== originalPrice;
+
+        const counterButton = document.getElementById("counterProposeBtn");
+
+        if (isQtyChanged || isPriceChanged) {
+            counterButton.disabled = false;
+            counterButton.style.opacity = 1;
+            counterButton.style.cursor = "pointer";
+        } else {
+            counterButton.disabled = true;
+            counterButton.style.opacity = 0.5;
+            counterButton.style.cursor = "not-allowed";
+        }
+    }
+
+    function closeNegotiationModal() {
+        document.getElementById("negotiationModal").style.display = "none";
+        document.getElementById("modalBackdrop").style.display = "none";
+    }
+
+    function submitNegotiationResponse(action) {
+    const quantity = parseInt(document.getElementById("modalQuantity").value);
+    const price = parseFloat(document.getElementById("modalPrice").value);
+    const comment = document.getElementById("modalComments").value;
+    const negotiationId = window.currentNegotiationRowId;
+
+    fetch("/update_negotiation_dashboard/", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCSRFToken(),
+        },
+        credentials: "include",
+        body: JSON.stringify({
+            negotiation_id: negotiationId,
+            quantity: quantity,
+            price: price,
+            comment: comment,
+            status: action
+        }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message) {
+            alert("✅ " + data.message);
+            closeNegotiationModal();
+            loadNegotiationDashboard();  // refresh the table
+            loadOrders();                // if order updates are needed
+        } else {
+            alert("❌ " + (data.error || "Update failed."));
+        }
+    })
+    .catch(error => {
+        alert("⚠️ Error submitting negotiation response.");
+        console.error(error);
+    });
+}
+
+    function loadNegotiationDashboard() {
+    fetch("/get_negotiation_dashboard/")
+        .then(response => response.json())
+        .then(data => {
+            const records = data.records || [];
+            const tableBody = document.getElementById("negotiationDashboardTableBody");
+            const paginationDiv = document.getElementById("negotiationDashboardPaginationControls");
+            const rowsPerPage = 5;
+            let currentPage = 1;
+            let selectedRow = null;
+
+            function renderTable(page) {
+                tableBody.innerHTML = "";
+                const start = (page - 1) * rowsPerPage;
+                const end = start + rowsPerPage;
+
+                const selectedStatus = document.getElementById("statusFilter").value;
+                const filteredRecords = selectedStatus === "all"
+                    ? records
+                    : records.filter(r => r.status === selectedStatus);
+
+                const pageData = filteredRecords.slice(start, end);
+
+                if (pageData.length === 0) {
+                    tableBody.innerHTML = "<tr><td colspan='8'>No negotiation records found.</td></tr>";
+                    return;
+                }
+
+                pageData.forEach(record => {
+                    const row = document.createElement("tr");
+                    const checkbox = document.createElement("input");
+                    checkbox.type = "checkbox";
+                    checkbox.value = record.id;
+                    checkbox.style.transform = "scale(1.3)";
+                    checkbox.style.cursor = "pointer";
+
+                    const checkboxCell = document.createElement("td");
+                    checkboxCell.style.textAlign = "center";
+                    checkboxCell.appendChild(checkbox);
+                    row.appendChild(checkboxCell);
+
+                    const cells = [
+                        { text: record.product, align: "left" },
+                        { text: record.qty, align: "right" },
+                        { text: `$${parseFloat(record.price).toFixed(2)}`, align: "right" },
+                        { text: record.comment, align: "left" },
+                        { text: record.status, align: "center" },
+                        { text: record.buyer, align: "left" },
+                        { text: record.seller, align: "left" },
+                    ];
+
+                    cells.forEach(cell => {
+                        const td = document.createElement("td");
+                        td.style.textAlign = cell.align;
+                        td.textContent = cell.text;
+                        row.appendChild(td);
+                    });
+
+                    checkbox.addEventListener("change", () => {
+                        document.querySelectorAll("#negotiationDashboardTableBody input[type='checkbox']").forEach(cb => {
+                            if (cb !== checkbox) cb.checked = false;
+                        });
+                        document.querySelectorAll("#negotiationDashboardTableBody tr").forEach(r => {
+                            r.classList.remove("selected-row");
+                        });
+                        if (checkbox.checked) {
+                            row.classList.add("selected-row");
+                            selectedRow = row;
+                        } else {
+                            selectedRow = null;
+                        }
+                    });
+
+                    row.addEventListener("click", (event) => {
+                        if (event.target.type === "checkbox") return;
+                        checkbox.checked = true;
+                        checkbox.dispatchEvent(new Event("change"));
+                        window.currentNegotiationRowId = record.id;
+                        openNegotiationModal(record);
+                    });
+
+                    tableBody.appendChild(row);
+                });
+            }
+
+            function renderPagination() {
+                paginationDiv.innerHTML = "";
+                const selectedStatus = document.getElementById("statusFilter").value;
+                const filteredRecords = selectedStatus === "all"
+                    ? records
+                    : records.filter(r => r.status === selectedStatus);
+                const totalPages = Math.ceil(filteredRecords.length / rowsPerPage);
+                for (let i = 1; i <= totalPages; i++) {
+                    const btn = document.createElement("button");
+                    btn.textContent = i;
+                    btn.style.margin = "0 4px";
+                    btn.disabled = i === currentPage;
+                    btn.onclick = () => {
+                        currentPage = i;
+                        renderTable(currentPage);
+                        renderPagination();
+                    };
+                    paginationDiv.appendChild(btn);
+                }
+            }
+
+            window.applyStatusFilter = function () {
+                currentPage = 1;
+                renderTable(currentPage);
+                renderPagination();
+            };
+
+            renderTable(currentPage);
+            renderPagination();
+        })
+        .catch(error => {
+            console.error("Failed to load negotiation dashboard:", error);
+        });
+}
+
+
+    function toggleSelectAll(masterCheckbox) {
+        const checkboxes = document.querySelectorAll("#negotiationDashboardTableBody input[type='checkbox']");
+        checkboxes.forEach(cb => cb.checked = masterCheckbox.checked);
+    }
+	
+	function makeModalDraggable(modalId, handleId) {
+    const modal = document.getElementById(modalId);
+    const handle = document.getElementById(handleId);
+    let offsetX = 0, offsetY = 0, isDragging = false;
+
+    handle.addEventListener("mousedown", (e) => {
+        isDragging = true;
+        offsetX = e.clientX - modal.getBoundingClientRect().left;
+        offsetY = e.clientY - modal.getBoundingClientRect().top;
+        document.body.style.userSelect = "none";
+    });
+
+    document.addEventListener("mouseup", () => {
+        isDragging = false;
+        document.body.style.userSelect = "";
+    });
+
+    document.addEventListener("mousemove", (e) => {
+        if (!isDragging) return;
+        modal.style.top = `${e.clientY - offsetY}px`;
+        modal.style.left = `${e.clientX - offsetX}px`;
+        modal.style.transform = `none`;  // Cancel centering to allow free dragging
+    });
+}
+
+    document.addEventListener("DOMContentLoaded", () => {
+        loadNegotiationTasks();
+        loadOrders();
+        loadNegotiationDashboard();
+		makeModalDraggable("negotiationModal", "modalHeader");
+    });
+</script>
 {% endblock %}

@@ -2094,7 +2094,7 @@ input, select, textarea {
 
 	#header-wrapper {
 		position: relative;
-		padding: 4em 0 2em 0;
+		padding: 3.5em 0 1em 0;
 		background-image: url("images/header.svg");
 		background-image: url("images/overlay.png"), url("images/header.svg"), -moz-linear-gradient(75deg, #FF7088 15%, #F2B69D 55%);
 		background-image: url("images/overlay.png"), url("images/header.svg"), -webkit-linear-gradient(75deg, #FF7088 15%, #F2B69D 55%);
@@ -2107,7 +2107,7 @@ input, select, textarea {
 	}
 
 	.homepage #header-wrapper {
-		padding: 10em 0 6em 0;
+		padding: 5em 0 6em 0;
 		background-size: 128px 128px, 100% 100%, auto;
 	}
 
@@ -3068,3 +3068,96 @@ input, select, textarea {
 			}
 
 	}
+	/* Remove diagonal background from feature sections */
+	.row.features,
+	.row.features > section.feature,
+	.image-wrapper,
+	.image-wrapper.first {
+		background: none !important;
+		background-image: none !important;
+	}
+
+	.image-wrapper.first:before {
+    background: none !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    content: none !important;
+    display: none !important;
+}
+	.feature-img img {
+    max-width: 200px;
+    width: 100%;
+    height: auto;
+    display: block;
+    margin: 2em auto 1.5em auto;
+}
+
+#header-wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+}
+
+body {
+    padding-top: 50px; /* Adjust this value to the height of your header */
+}
+
+/* Reduce space below the features row */
+.row.features {
+    margin-bottom: 1em !important; /* Reduce as needed */
+    padding-bottom: 0 !important;
+}
+
+/* Remove extra margin from the last feature section */
+.row.features > section.feature:last-child {
+    margin-bottom: 0 !important;
+}
+
+/* Remove extra margin from the container if present */
+#main {
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+}
+
+#searchText, #categorySelect {
+    width: 400px;     /* Set your desired width */
+    height: 40px;     /* Set your desired height */
+    padding: 8px 12px; /* Optional: for better appearance */
+    box-sizing: border-box; /* Ensures padding is included in width */
+    font-size: 16px;   /* Optional: for better readability */
+    margin-bottom: 10px; /* Optional: spacing between fields */
+}
+
+.feature-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 30px;
+	margin-top: 0; 
+}
+
+.feature-logo {
+    width: 200px; /* Adjust as needed */
+    height: auto;
+    margin-right: 24px; /* Space between logo and text */
+}
+
+.feature-header-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.feature-header-content h2 {
+    font-size: 3rem;   /* Adjust as needed, e.g., 40px or 2.5em */
+    font-weight: 700;    /* Optional: makes the title bolder */
+	margin-bottom: 15px;
+	margin-top: 0;
+}
+
+.feature-header-content p {
+    font-size: 2rem;  /* Adjust as needed, e.g., 20px or 1.25em */
+    color: #f48c8c;      /* Optional: adjust color if you want */
+}
+
