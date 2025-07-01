@@ -1,4 +1,5 @@
 from core.backend.database import create_connection
+from datetime import datetime                             
 
 class BargainSetting:
     def __init__(self, product_id, min_quantity, min_price, unit="kg"):
@@ -31,6 +32,8 @@ class BargainRequest:
             (self.product_id, self.user_id, self.quantity, self.price)
         )
         conn.commit()
+
+
 
 class BargainFactory:
     @staticmethod
