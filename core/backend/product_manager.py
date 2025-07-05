@@ -38,7 +38,6 @@ class ProductManager:
         conn.commit()
 
     @staticmethod
-    @staticmethod
     def purchase_product(product_id, quantity, buyer_id):
         conn = create_connection()
         cursor = conn.cursor()

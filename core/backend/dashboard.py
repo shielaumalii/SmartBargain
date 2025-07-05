@@ -1,3 +1,4 @@
+from django.http import JsonResponse
 from .database import create_connection
 from .bargain_factory import BargainFactory
 
@@ -101,52 +102,86 @@ def save_negotiation_response(bargain_id, quantity, price, comment, action, conn
     except Exception as e:
         return False, str(e)
 
-
-def get_orders_for_user(email, role):
+#This was to focus on getting orders based on buyer id       
+def get_orders_for_user_id(user_id):
     conn = create_connection()
     cursor = conn.cursor()
 
-    if role == 'buyer':
-        cursor.execute("""
-            SELECT o.id, p.name, o.quantity, o.price, o.created_at
-            FROM orders o
-            JOIN products p ON o.product_id = p.id
-            JOIN users u ON o.buyer_id = u.id
-            WHERE u.email = ?
-            ORDER BY o.created_at DESC
-        """, (email,))
-    elif role == 'seller':
-        cursor.execute("""
-            SELECT o.id, p.name, o.quantity, o.price, o.created_at, u.name
-            FROM orders o
-            JOIN products p ON o.product_id = p.id
-            JOIN users u ON o.buyer_id = u.id
-            JOIN users s ON p.seller_id = s.id
-            WHERE s.email = ?
-            ORDER BY o.created_at DESC
-        """, (email,))
-    else:
-        return []
+    cursor.execute("""
+        SELECT o.id, p.name, o.quantity, o.price, o.created_at
+        FROM orders o
+        JOIN products p ON o.product_id = p.id
+        WHERE o.buyer_id = ?
+    """, (user_id,))
+
 
     rows = cursor.fetchall()
     orders = []
 
     for row in rows:
-        order = {
+        orders.append({
             "id": row[0],
             "product": row[1],
             "qty": row[2],
             "price": row[3],
             "date": row[4],
             "status": "Purchased"
-        }
-        if role == 'seller':
-            order["buyer"] = row[5]
-        orders.append(order)
+        })
 
     return orders
 
-def get_negotiation_dashboard_data(user_id, role):
+# This is to get orders for sellers 
+def get_orders_for_seller(seller_id):
+    conn = create_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT o.id, p.name, o.quantity, o.price, o.created_at, u.email
+        FROM orders o
+        JOIN products p ON o.product_id = p.id
+        JOIN users u ON o.buyer_id = u.id
+        WHERE p.seller_id = ?
+        ORDER BY o.created_at DESC
+    """, (seller_id,))
+
+    rows = cursor.fetchall()
+    orders = []
+
+    for row in rows:
+        orders.append({
+            "id": row[0],
+            "product": row[1],
+            "qty": row[2],
+            "price": row[3],
+            "date": row[4],
+            "buyer": row[5],  # include buyer email for seller context
+            "status": "Purchased"
+        })
+
+    return orders
+
+
+#Show orders based on buyer id or seller id
+def get_orders(request):
+    print("🚨 /get_orders triggered")
+    user_id = request.session.get('user_id')
+    role = request.session.get('role')
+
+    if not user_id or not role:
+        return JsonResponse({"success": False, "message": "Unauthorized"}, status=403)
+
+    if role == 'buyer':
+        orders = get_orders_for_user_id(user_id)
+    elif role == 'seller':
+        orders = get_orders_for_seller(user_id)
+    else:
+        return JsonResponse({"success": False, "message": "Invalid role"}, status=400)
+    print(f"📦 Orders fetched: {len(orders)}")
+    return JsonResponse({"orders": orders})
+
+
+
+def get_negotiation_dashboard_data(user_id, role, status_filter=None):
     conn = create_connection()
     cursor = conn.cursor()
 
@@ -181,31 +216,33 @@ def get_negotiation_dashboard_data(user_id, role):
         })
 
     return result
+    
     #This is to add values from seocnd negotiation groid to its table. Overwrite the values
-def update_negotiation_dashboard_response(row_id, quantity, price, comment, action):
+def update_negotiation_dashboard_response(row_id, quantity, price, comment, action, status=None):
     try:
         conn = create_connection()
         cursor = conn.cursor()
 
-        status_map = {
-            "accept": "Active",
+        # ✅ NEW normalization logic
+        normalized_map = {
+            "accept": "Accepted",
             "reject": "Rejected",
-            "counter": "Pending Buyer Approval",
-            "cancel": "Cancelled"
+            "cancel": "Cancelled",
         }
 
-        status = status_map.get(action.lower())
-        if not status:
-            return False, "Invalid action"
+        # Normalize status even if it's provided
+        base_status = status or action
+        final_status = normalized_map.get(base_status.lower(), base_status)
 
         cursor.execute("""
             UPDATE negotiation_dashboard
             SET proposed_quantity = ?, proposed_price = ?, comment = ?, status = ?
             WHERE id = ?
-        """, (quantity, price, comment, status, row_id))
+        """, (quantity, price, comment, final_status, row_id))
 
         conn.commit()
         return True, "Negotiation updated successfully"
     except Exception as e:
         return False, str(e)
+
 

@@ -1,5 +1,7 @@
 from django.urls import path, include
 from . import views
+from .backend.dashboard import get_orders
+
 
 urlpatterns = [
     path('', views.homepage, name='homepage'),
@@ -19,10 +21,16 @@ urlpatterns = [
     path('save_bargain_request/', views.save_bargain_request, name='save_bargain_request'),
     path("get_negotiation_tasks/", views.get_negotiation_tasks_view, name="get_negotiation_tasks"),
     path("dashboard/", views.dashboard, name="dashboard"),
-    path("get_orders/", views.get_orders, name="get_orders"),
     path("submit_negotiation_response/", views.submit_negotiation_response, name="submit_negotiation_response"),
     path("get_negotiation_dashboard/", views.get_negotiation_dashboard, name="get_negotiation_dashboard"),
     path("update_negotiation_dashboard/", views.update_negotiation_dashboard, name="update_negotiation_dashboard"),
+    #Contact us
+    path('submit_contact_message/', views.submit_contact_message, name='submit_contact_message'),
+    path('get_contact_messages/', views.get_contact_messages, name='get_contact_messages'),
+    path('close_contact_message/', views.close_contact_message, name='close_contact_message'),
+    #Dashbaord Orders
+    path('get_orders/', get_orders, name='get_orders'),
+
 
     
 

@@ -8,13 +8,22 @@
         transform: scale(1.3);
         cursor: pointer;
     }
+
     .selected-row {
         background-color: #e0f7fa !important;
     }
+
     #negotiationDashboardTable tr {
         cursor: pointer;
     }
+
+    .pagination-wrapper {
+        display: flex;
+        justify-content: center;
+        margin-top: 10px;
+    }
 </style>
+
 
 {% block content %}
 <div class="wrapper">
@@ -58,7 +67,12 @@
                     <article style="border: 1px solid #ccc; border-radius: 8px; padding: 16px; margin-top: 30px;">
                         <header>
                             <h2>Negotiation Dashboard</h2>
-                            <p>Review submitted negotiation responses below. Click a row to view and respond.</p>
+                            <p style="margin-bottom: 4px;">
+							Review submitted negotiation responses below. Click a row to view and respond.
+							</p>
+							<p style="color: #b71c1c; font-size: 0.85em; font-style: italic; margin: 0;">
+							⚠️ Note: Cancelled negotiation records cannot be further edited or responded to.
+							</p>
                         </header>
 						<!-- Filter by Status -->
 						<div style="margin-bottom: 10px;">
@@ -80,7 +94,7 @@
                                         <input type="checkbox" onclick="toggleSelectAll(this)" />
                                     </th>
                                     <th style="padding: 8px; text-align: left; font-weight: bold;">Product</th>
-                                    <th style="padding: 8px; text-align: right; font-weight: bold;">Qty</th>
+                                    <th style="padding: 8px; text-align: right; font-weight: bold;">Quantity</th>
                                     <th style="padding: 8px; text-align: right; font-weight: bold;">Price</th>
                                     <th style="padding: 8px; text-align: left; font-weight: bold;">Comment</th>
                                     <th style="padding: 8px; text-align: center; font-weight: bold;">Status</th>
@@ -165,14 +179,14 @@
                     <!-- Orders Table -->
                     <article style="border: 1px solid #ccc; border-radius: 8px; padding: 16px; margin-top: 20px;">
                         <header>
-                            <h2 style="margin-top: 0;">Orders</h2>
+                            <h2 style="margin-top: 0;">Order History</h2>
                         </header>
                         <section>
                             <table id="ordersTable" style="width: 100%; border-collapse: collapse;">
                                 <thead>
                                     <tr>
                                         <th style="padding: 8px; text-align: left; font-weight: bold;">Product</th>
-                                        <th style="padding: 8px; text-align: right; font-weight: bold;">Qty</th>
+                                        <th style="padding: 8px; text-align: right; font-weight: bold;">Quantity</th>
                                         <th style="padding: 8px; text-align: right; font-weight: bold;">Price</th>
                                         <th style="padding: 8px; text-align: center; font-weight: bold;">Status</th>
                                         <th style="padding: 8px; text-align: center; font-weight: bold;">Date</th>
@@ -186,13 +200,100 @@
                     </article>
 
                 </article>
-                <div id="paginationControls" style="margin-top: 10px;"></div>
+                <div id="paginationControls" style="margin-top: 10px; text-align: center;"></div>
             </div>
+        </div>
+    </div>
+
+{% if request.session.role == "seller" %}
+	<article style="border: 1px solid #ccc; border-radius: 8px; padding: 16px; margin-top: 30px; max-width: 900px; margin-left: auto; margin-right: auto;">
+		<header>
+			<h2>Contact Messages</h2>
+        <p>Review customer messages. Use filters or click a row for full details.</p>
+    </header>
+
+		<!-- Filter Controls -->
+		<div style="margin-bottom: 10px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px;">
+		<label for="messageStatusFilter"><strong>Status:</strong></label>
+		<select id="messageStatusFilter">
+			<option value="all">All</option>
+			<option value="open">Open</option>
+			<option value="closed">Closed</option>
+		</select>
+
+		<label for="messageDateFilter"><strong>Date:</strong></label>
+		<input type="date" id="messageDateFilter" />
+
+		<button onclick="clearMessageFilters()" style="padding: 6px 12px; border: 1px solid #ccc; background: #f5f5f5; border-radius: 4px; cursor: pointer;">
+        Clear Filters
+		</button>
+		</div>
+
+		<!-- Messages Table -->
+		<section>
+			<div style="overflow-x: auto;">
+				<table id="messagesTable" style="width: 100%; border-collapse: collapse; table-layout: fixed;">
+					<thead>
+						<tr style="background-color: #f5f5f5;">
+						<th style="padding: 8px; text-align: left; font-weight: bold;">Name</th>
+						<th style="padding: 8px; text-align: center; font-weight: bold;">Status</th>
+						<th style="padding: 8px; text-align: center; font-weight: bold;">Date</th>
+						</tr>
+					</thead>
+					<tbody id="messagesTableBody">
+						<!-- JS will populate -->
+					</tbody>
+					<tbody id="noMessagesRow" style="display: none;">
+						<tr>
+							<td colspan="3" style="text-align: center; padding: 12px; color: #999;">
+							No messages found for the selected criteria.
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			<div id="messagePagination" style="text-align: center; margin-top: 10px;"></div>
+		</section>
+	</article>
+	<!-- Message Detail Modal -->
+	<div id="messageModal" style="
+		display: none;
+		position: fixed;
+		top: 10%;
+		left: 50%;
+		transform: translate(-50%, 0);
+		width: 90%;
+		max-width: 500px;
+		background: white;
+		border: 1px solid #ccc;
+		border-radius: 10px;
+		z-index: 1000;
+		box-shadow: 0 4px 10px rgba(0,0,0,0.2);">
+
+    <!-- Modal Header -->
+    <div style="background-color: #f5f5f5; padding: 10px; border-bottom: 1px solid #ccc;">
+        <h3 style="margin: 0;">Contact Message Detail</h3>
+    </div>
+
+    <!-- Modal Content -->
+    <div style="padding: 20px;">
+        <div><label><strong>Name:</strong></label><p id="modalMsgName"></p></div>
+        <div><label><strong>Email:</strong></label><p id="modalMsgEmail"></p></div>
+        <div><label><strong>Message:</strong></label><p id="modalMsgMessage" style="white-space: pre-wrap;"></p></div>
+        <div><label><strong>Status:</strong></label><p id="modalMsgStatus"></p></div>
+        <div><label><strong>Date:</strong></label><p id="modalMsgDate"></p></div>
+
+        <!-- Modal Buttons -->
+        <div style="margin-top: 20px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">
+            <button onclick="replyToMessage()">Reply</button>
+            <button onclick="closeMessageThread()">Close Message</button>
+            <button onclick="closeMessageModal()">Exit Page</button>
         </div>
     </div>
 </div>
 
 
+{% endif %}
+</div>
 <script>
     const userEmail = "{{ request.session.email }}";
     const userRole = "{{ request.session.role }}";
@@ -224,7 +325,7 @@
                     const pageTasks = allTasks.slice(start, end);
 
                     if (pageTasks.length === 0) {
-                        table.innerHTML = "<tr><td colspan='3'>No negotiation tasks found.</td></tr>";
+                        table.innerHTML = "<tr><td colspan='4'>No negotiation tasks found.</td></tr>";
                         return;
                     }
 
@@ -238,7 +339,8 @@
                         `;
                         row.style.cursor = "pointer";
                         row.onclick = () => {
-                            openNegotiationModal(task);
+                            window.currentNegotiationRowId = task.id;
+                            openNegotiationModal(task, "new_task");
                         };
                         table.appendChild(row);
                     });
@@ -269,71 +371,89 @@
             });
     }
 
+
     function loadOrders() {
-        fetch("/get_orders/")
-            .then(response => response.json())
-            .then(data => {
-                const orders = data.orders || [];
-                const rowsPerPage = 5;
+    console.log("🔄 Fetching orders...");
+
+    fetch("/get_orders/")
+        .then(response => response.json())
+        .then(data => {
+            const orders = data.orders || [];
+            const table = document.getElementById("ordersTableBody");
+            const paginationDiv = document.getElementById("paginationControls");
+			paginationDiv.className = "pagination-wrapper";
+            const rowsPerPage = 5;
+            let currentPage = 1;
+
+            function renderTable(page) {
+                table.innerHTML = "";
+                const start = (page - 1) * rowsPerPage;
+                const end = start + rowsPerPage;
+                const pageData = orders.slice(start, end);
+
+                if (pageData.length === 0) {
+                    table.innerHTML = "<tr><td colspan='5'>No orders found.</td></tr>";
+                    return;
+                }
+
+                pageData.forEach(order => {
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td style="padding: 8px; text-align: left;">${order.product}</td>
+                        <td style="padding: 8px; text-align: right;">${order.qty}</td>
+                        <td style="padding: 8px; text-align: right;">$${parseFloat(order.price).toFixed(2)}</td>
+                        <td style="padding: 8px; text-align: center;">${order.status}</td>
+                        <td style="padding: 8px; text-align: center;">${new Date(order.date).toLocaleString()}</td>
+                    `;
+                    table.appendChild(row);
+                });
+            }
+
+            function renderPagination() {
+                paginationDiv.innerHTML = "";
                 const totalPages = Math.ceil(orders.length / rowsPerPage);
-                let currentPage = 1;
-
-                const table = document.getElementById("ordersTableBody");
-                const paginationDiv = document.getElementById("paginationControls") || document.createElement("div");
-                paginationDiv.id = "paginationControls";
-                paginationDiv.style.marginTop = "10px";
-                paginationDiv.style.textAlign = "center";
-                table.parentNode.after(paginationDiv);
-
-                function renderTable(page) {
-                    table.innerHTML = "";
-                    const start = (page - 1) * rowsPerPage;
-                    const end = start + rowsPerPage;
-                    const pageData = orders.slice(start, end);
-
-                    if (pageData.length === 0) {
-                        table.innerHTML = "<tr><td colspan='5'>No orders found.</td></tr>";
-                        return;
-                    }
-
-                    pageData.forEach(order => {
-                        const row = document.createElement("tr");
-                        row.innerHTML = `
-                            <td style="padding: 8px; text-align: left;">${order.product}</td>
-                            <td style="padding: 8px; text-align: right;">${order.qty}</td>
-                            <td style="padding: 8px; text-align: right;">$${parseFloat(order.price).toFixed(2)}</td>
-                            <td style="padding: 8px; text-align: center;">${order.status}</td>
-                            <td style="padding: 8px; text-align: center;">${new Date(order.date).toLocaleString()}</td>
-                        `;
-                        table.appendChild(row);
-                    });
+                for (let i = 1; i <= totalPages; i++) {
+                    const btn = document.createElement("button");
+                    btn.textContent = i;
+                    btn.style.margin = "0 4px";
+                    btn.disabled = i === currentPage;
+                    btn.onclick = () => {
+                        currentPage = i;
+                        renderTable(currentPage);
+                        renderPagination();
+                    };
+                    paginationDiv.appendChild(btn);
                 }
+            }
 
-                function renderPagination() {
-                    paginationDiv.innerHTML = "";
-                    for (let i = 1; i <= totalPages; i++) {
-                        const btn = document.createElement("button");
-                        btn.textContent = i;
-                        btn.style.margin = "0 4px";
-                        btn.disabled = i === currentPage;
-                        btn.onclick = () => {
-                            currentPage = i;
-                            renderTable(currentPage);
-                            renderPagination();
-                        };
-                        paginationDiv.appendChild(btn);
-                    }
-                }
+            renderTable(currentPage);
+            renderPagination();
+        })
+        .catch(error => {
+            console.error("❌ Error loading orders:", error);
+        });
+}
 
-                renderTable(currentPage);
-                renderPagination();
-            })
-            .catch(error => {
-                console.error("Failed to load orders:", error);
-            });
+document.addEventListener("DOMContentLoaded", () => {
+    loadOrders();
+
+    // Auto-load contact messages if the table exists - this is for message table 
+    if (document.getElementById('messagesTableBody')) {
+        loadContactMessages();  // default load with 'all'
     }
 
-    function openNegotiationModal(task) {
+    // Add filter listener for message status (open/closed/all) - this is for message table
+    const filter = document.getElementById('messageStatusFilter');
+    if (filter) {
+        filter.addEventListener('change', () => {
+            const status = filter.value;
+            currentMessagePage = 1;  // reset to first page on filter change
+            loadContactMessages(status);
+        });
+    }
+});
+
+    function openNegotiationModal(task, source = "dashboard") {
         document.getElementById("modalProductName").innerText = task.product;
         document.getElementById("modalQuantity").value = task.quantity;
         document.getElementById("modalPrice").value = task.price || "";
@@ -348,6 +468,7 @@
         document.getElementById("negotiationModal").style.display = "block";
         document.getElementById("modalBackdrop").style.display = "block";
         window.currentNegotiationId = task.id;
+		window.currentNegotiationSource = source;
 
         document.getElementById("modalQuantity").addEventListener("input", checkCounterProposalValidity);
         document.getElementById("modalPrice").addEventListener("input", checkCounterProposalValidity);
@@ -379,35 +500,64 @@
         document.getElementById("negotiationModal").style.display = "none";
         document.getElementById("modalBackdrop").style.display = "none";
     }
+	
 
     function submitNegotiationResponse(action) {
     const quantity = parseInt(document.getElementById("modalQuantity").value);
     const price = parseFloat(document.getElementById("modalPrice").value);
     const comment = document.getElementById("modalComments").value;
-    const negotiationId = window.currentNegotiationRowId;
 
-    fetch("/update_negotiation_dashboard/", {
+    const source = window.currentNegotiationSource;
+    const negotiationId = window.currentNegotiationRowId;
+    const userRole = "{{ request.session.role|escapejs }}";
+
+    const payload = {
+        quantity: quantity,
+        price: price,
+        comment: comment,
+        action: action  // Keep action for backend logic
+    };
+
+    // ✅ Set status correctly
+    const statusMap = {
+		"accept": "Accepted",
+		"reject": "Rejected",
+		"cancel": "Cancelled",
+		"counter": userRole === "buyer"
+			? "Pending Seller Approval"
+			: "Pending Buyer Approval"
+	};
+
+	payload.status = statusMap[action] || "Pending";
+
+    let url = "";
+    if (source === "new_task") {
+        url = "/submit_negotiation_response/";
+        payload.bargain_id = negotiationId;
+    } else {
+        url = "/update_negotiation_dashboard/";
+        payload.negotiation_id = negotiationId;
+    }
+
+    console.log("Payload being sent:", payload); // ✅ Debugging log
+
+    fetch(url, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
             "X-CSRFToken": getCSRFToken(),
         },
         credentials: "include",
-        body: JSON.stringify({
-            negotiation_id: negotiationId,
-            quantity: quantity,
-            price: price,
-            comment: comment,
-            status: action
-        }),
+        body: JSON.stringify(payload),
     })
     .then(response => response.json())
     .then(data => {
         if (data.message) {
             alert("✅ " + data.message);
             closeNegotiationModal();
-            loadNegotiationDashboard();  // refresh the table
-            loadOrders();                // if order updates are needed
+            loadNegotiationDashboard();
+            loadNegotiationTasks();
+            loadOrders();
         } else {
             alert("❌ " + (data.error || "Update failed."));
         }
@@ -417,6 +567,11 @@
         console.error(error);
     });
 }
+
+
+
+
+
 
     function loadNegotiationDashboard() {
     fetch("/get_negotiation_dashboard/")
@@ -461,7 +616,7 @@
 
                     const cells = [
                         { text: record.product, align: "left" },
-                        { text: record.qty, align: "right" },
+                        { text: record.qty || record.quantity || "-", align: "right" },
                         { text: `$${parseFloat(record.price).toFixed(2)}`, align: "right" },
                         { text: record.comment, align: "left" },
                         { text: record.status, align: "center" },
@@ -493,11 +648,18 @@
 
                     row.addEventListener("click", (event) => {
                         if (event.target.type === "checkbox") return;
+						if (record.status === "Cancelled") return;
                         checkbox.checked = true;
                         checkbox.dispatchEvent(new Event("change"));
                         window.currentNegotiationRowId = record.id;
-                        openNegotiationModal(record);
+                        openNegotiationModal(record, "dashboard");
                     });
+					
+					if (record.status === "Cancelled") {
+					row.style.backgroundColor = "#f0f0f0"; // light grey
+					row.style.cursor = "not-allowed";      // visual cue
+					row.classList.add("cancelled-row");    // optional for reuse
+					}
 
                     tableBody.appendChild(row);
                 });
@@ -564,8 +726,8 @@
     document.addEventListener("mousemove", (e) => {
         if (!isDragging) return;
         modal.style.top = `${e.clientY - offsetY}px`;
-        modal.style.left = `${e.clientX - offsetX}px`;
-        modal.style.transform = `none`;  // Cancel centering to allow free dragging
+		modal.style.left = `${e.clientX - offsetX}px`;
+		modal.style.transform = "none";  // Cancel centering to allow free dragging
     });
 }
 

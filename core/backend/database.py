@@ -115,6 +115,18 @@ def create_tables():
             FOREIGN KEY(buyer_id) REFERENCES users(id)
         )
     ''')
+    
+    #To track direct messages
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS contact_messages (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        email TEXT NOT NULL,
+        message TEXT NOT NULL,
+        status TEXT DEFAULT 'open',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+    """)
 
     conn.commit()
     # Singleton, so no close here

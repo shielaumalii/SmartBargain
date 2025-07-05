@@ -2,16 +2,21 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from datetime import datetime
 import json
 from core.backend.login import login_user, register_user
 from core.backend.product_manager import ProductManager
 from core.backend.bargain_factory import BargainFactory
 from core.backend.database import create_connection
-from core.backend.dashboard import get_orders_for_user
 from core.backend.dashboard import get_negotiation_tasks
 from core.backend.dashboard import save_negotiation_response
 from core.backend.dashboard import get_negotiation_dashboard_data
 from core.backend.dashboard import update_negotiation_dashboard_response 
+from core.backend.bargain_factory import BargainFactory
+from core.backend.contact_manager import ContactManager 
+from core.backend.dashboard import get_orders
+
+
 
 def login_view(request):
     return render(request, "core/login.html")
@@ -51,11 +56,19 @@ def handle_login(request):
             request.session['role'] = user['role']
             request.session['email'] = user['email']
             request.session['user_id'] = user['id']
+
+            # ✅ debug print
+            print("✅ Login Successful")
+            print("📧 Email:", request.session['email'])
+            print("🆔 User ID:", request.session['user_id'])
+            print("👤 Role:", request.session['role'])
+
             messages.success(request, f"Welcome {user['name']} ({user['role']})")
             return redirect("homepage")
         else:
             messages.error(request, result)
             return redirect("login")
+
 
 def handle_register(request):
     if request.method == "POST":
@@ -185,8 +198,9 @@ def get_negotiation_dashboard(request):
 
     user_id = request.session['user_id']
     role = request.session['role']
+    status_filter = request.GET.get("status", "all")
 
-    data = get_negotiation_dashboard_data(user_id, role)
+    data = get_negotiation_dashboard_data(user_id, role, status_filter)
     return JsonResponse({"records": data})
     
 @csrf_exempt
@@ -249,11 +263,16 @@ def get_negotiation_tasks_view(request):
 
     email = request.session['email']
     role = request.session['role']
+
+    print(f"DEBUG: Getting tasks for {email} with role {role}")  # Debug log
     tasks = get_negotiation_tasks(email, role)
+    print(f"DEBUG: Found {len(tasks)} tasks")  # Debug log
+
     return JsonResponse({"tasks": tasks})
 
 
-def get_orders(request):
+
+'''def get_orders(request):
     if 'email' not in request.session or 'role' not in request.session:
         return JsonResponse({"success": False, "message": "Unauthorized"}, status=403)
 
@@ -261,60 +280,169 @@ def get_orders(request):
     role = request.session['role']
 
     orders = get_orders_for_user(email, role)
-    return JsonResponse({"orders": orders})
+
+    return JsonResponse({"orders": orders})'''
 
 
+# This is for new negotation seller submission
 @csrf_exempt
 def submit_negotiation_response(request):
-    if request.method == "POST":
-        data = json.loads(request.body)
-
-        bargain_id = data.get("bargain_id")
-        quantity = data.get("quantity")
-        price = data.get("price")
-        comment = data.get("comment")
-        status = data.get("status")
-
-        # Get seller_id from session
-        seller_id = request.session.get("user_id")
-        if not request.session.get("user_id"):
-            return JsonResponse({"error": "User not logged in"}, status=403)
-
-
-        # Call backend function with correct IDs
-        success, message = save_negotiation_response(
-            bargain_id, quantity, price, comment, status
-        )
-
-        if success:
-            return JsonResponse({"message": message})
-        else:
-            return JsonResponse({"error": message}, status=400)
-
-    return JsonResponse({"error": "Invalid method"}, status=405)
-
-@csrf_exempt
-def update_negotiation_dashboard(request):
     if request.method == "POST":
         try:
             data = json.loads(request.body)
 
-            row_id = data.get("negotiation_id")  # this should be record.id from your table
+            bargain_id = data.get("bargain_id")
             quantity = data.get("quantity")
             price = data.get("price")
-            comment = data.get("comment")
-            action = data.get("status")
+            comment = data.get("comment", "")
+            status = data.get("status", "")
+            seller_id = request.session.get("user_id")  # Logged-in user is the seller
 
-            success, message = update_negotiation_dashboard_response(
-                row_id, quantity, price, comment, action
-            )
+            print("🔍 DEBUG: Received payload")
+            print("bargain_id:", bargain_id)
+            print("quantity:", quantity)
+            print("price:", price)
+            print("status:", status)
+            print("seller_id:", seller_id)
 
-            if success:
-                return JsonResponse({"message": message})
-            else:
-                return JsonResponse({"error": message}, status=400)
+            if not all([bargain_id, quantity, price, status, seller_id]):
+                return JsonResponse({"error": "Missing required fields"}, status=400)
+
+            conn = create_connection()
+            cursor = conn.cursor()
+
+            # 🔄 Fetch product_id and buyer_id from bargain_requests
+            cursor.execute("SELECT product_id, user_id FROM bargain_requests WHERE id = ?", (bargain_id,))
+            result = cursor.fetchone()
+
+            print("🔍 DEBUG: Fetched from bargain_requests:", result)  # 👈 Debug line
+
+            if not result:
+                return JsonResponse({"error": "Invalid bargain_id"}, status=400)
+
+            product_id, buyer_id = result
+
+            # ✅ Insert into negotiation_dashboard
+            cursor.execute("""
+                INSERT INTO negotiation_dashboard (
+                    bargain_id, product_id, proposed_quantity,
+                    proposed_price, comment, status,
+                    buyer_id, seller_id
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                bargain_id, product_id, quantity,
+                price, comment, status,
+                buyer_id, seller_id
+            ))
+            
+            cursor.execute("DELETE FROM bargain_requests WHERE id = ?", (bargain_id,)) #to delete record from new negotations table
+
+            conn.commit()
+            return JsonResponse({"message": "Negotiation submitted successfully."})
 
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
 
     return JsonResponse({"error": "Invalid request method"}, status=405)
+
+@csrf_exempt
+def update_negotiation_dashboard(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "Invalid method"}, status=405)
+
+    try:
+        data = json.loads(request.body)
+        nego_id = data.get("negotiation_id")
+        action = data.get("action")  # accept, reject, cancel, counter
+        quantity = data.get("quantity")
+        price = data.get("price")
+        comment = data.get("comment", "")
+
+        # Validate negotiation ID
+        if not nego_id:
+            return JsonResponse({"error": "Missing negotiation ID"}, status=400)
+
+        # Validate action
+        if action not in ["accept", "reject", "cancel", "counter"]:
+            return JsonResponse({"error": "Invalid action"}, status=400)
+
+        if action == "counter":
+            if not quantity or not price:
+                return JsonResponse({"error": "Quantity and price required for counter proposals"}, status=400)
+            status = "Pending Buyer Approval" if request.session.get("role") == "seller" else "Pending Seller Approval"
+            updated, message = update_negotiation_dashboard_response(nego_id, quantity, price, comment, action, status)
+
+        elif action == "accept":
+            updated, message = update_negotiation_dashboard_response(nego_id, quantity, price, comment, action)
+
+        elif action == "reject":
+            updated, message = update_negotiation_dashboard_response(nego_id, quantity, price, comment, action)
+
+        elif action == "cancel":
+            updated, message = update_negotiation_dashboard_response(nego_id, quantity, price, comment, action)
+
+        if updated:
+            return JsonResponse({"success": True, "message": message})
+        return JsonResponse({"error": message or "Failed to update negotiation."}, status=500)
+
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
+
+#Fuctions related to direct contact feature
+def submit_contact_message(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            name = data.get('name')
+            email = data.get('email')
+            message = data.get('message')
+
+            if not name or not email or not message:
+                return JsonResponse({'success': False, 'error': 'All fields are required.'})
+
+            manager = ContactManager()
+            manager.save_message(name, email, message)
+            return JsonResponse({'success': True, 'message': 'Message submitted successfully.'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+
+def get_contact_messages(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            status = data.get('status', None)
+            date = data.get('date')  # ✅ You're getting it here
+
+            manager = ContactManager()
+            messages = manager.get_messages(status, date)  # ✅ Now pass it here
+
+            message_list = [{
+                'id': m[0],
+                'name': m[1],
+                'email': m[2],
+                'message': m[3],
+                'status': m[4],
+                'date': m[5]
+            } for m in messages]
+
+            return JsonResponse({'success': True, 'messages': message_list})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+
+
+def close_contact_message(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            msg_id = data.get('id')
+            if not msg_id:
+                return JsonResponse({'success': False, 'error': 'Message ID is required.'})
+
+            manager = ContactManager()
+            manager.close_message(msg_id)
+            return JsonResponse({'success': True})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+
+
+
