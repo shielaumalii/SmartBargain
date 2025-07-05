@@ -109,6 +109,7 @@
 <div id="purchaseModal" class="modal">
     <div class="modal-content">
         <h3 id="modalProductName"></h3>
+        <img id="modalProductImage" src="" alt="Product Image" style="max-width: 200px; margin: 0 auto 1em auto; display: block;" />
         <p>Unit Price: <span id="modalPrice"></span></p>
         <label>Quantity:</label>
         <input type="number" id="modalQty" value="1" min="1" onchange="updateTotal()" />
@@ -290,6 +291,10 @@
     function renderProducts(filtered = products) {
         const grid = document.getElementById("productGrid");
         grid.innerHTML = "";
+        if (filtered.length === 0) {
+            grid.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; color: #888; font-size: 1.2em; margin-top: 2em;">No products found.</div>';
+            return;
+        }
         filtered.forEach(p => {
             const card = document.createElement("div");
             card.className = "product-card";
@@ -324,6 +329,7 @@
     function openModal(product) {
         currentProduct = product;
         document.getElementById("modalProductName").innerText = product.name;
+        document.getElementById("modalProductImage").src = product.image;
         document.getElementById("modalPrice").innerText = `$${product.price.toFixed(2)}`;
         document.getElementById("modalQty").value = 1;
         updateTotal();

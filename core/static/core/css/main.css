@@ -3161,3 +3161,7 @@ body {
     color: #f48c8c;      /* Optional: adjust color if you want */
 }
 
+/* Add this at the end of your CSS file or in a relevant section */
+.login-header {
+    margin-top: 100px; /* Adjust as needed */
+}
