@@ -90,8 +90,10 @@ def handle_register(request):
         return redirect("login")
 
 def logout_view(request):
+    list(messages.get_messages(request))
+    messages.success(request, "You have logged out.") 
     request.session.flush()
-    return redirect("homepage")
+    return redirect("login")
 
 # Add New Product (Seller Only)
 def add_product(request):
