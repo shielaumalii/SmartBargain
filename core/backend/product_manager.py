@@ -8,6 +8,18 @@ class ProductManager:
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM products")
         return cursor.fetchall()
+        
+    @staticmethod
+    def get_all_products_with_bargain_settings():
+        conn = create_connection()
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT p.id, p.name, p.image_url, p.quantity, p.price, p.per, p.category, p.unit,
+                   bs.min_quantity, bs.min_price
+            FROM products p
+            LEFT JOIN bargain_settings bs ON p.id = bs.product_id
+        ''')
+        return cursor.fetchall()
 
     @staticmethod
     def add_product(name, image_url, quantity, price, per, unit, category, seller_id):

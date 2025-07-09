@@ -178,10 +178,12 @@ def get_products(request):
             "category": p[6] if len(p) > 6 else "uncategorized"
         })
     return JsonResponse({"products": product_list})
-
+    
+#This is the funcation to create the initial bargain request from buyers side 
 def negotiate_products(request):
-    products = ProductManager.get_all_products()
+    products = ProductManager.get_all_products_with_bargain_settings()
     product_list = []
+
     for p in products:
         product_list.append({
             "id": p[0],
@@ -190,8 +192,12 @@ def negotiate_products(request):
             "quantity": p[3],
             "price": p[4],
             "per": p[5],
-            "category": p[6]
+            "category": p[6],
+            "unit": p[7],
+            "min_quantity": p[8],
+            "min_price": p[9]
         })
+
     return JsonResponse({"products": product_list})
     
 def get_negotiation_dashboard(request):

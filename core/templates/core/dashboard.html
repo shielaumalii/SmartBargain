@@ -616,8 +616,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
                     const cells = [
                         { text: record.product, align: "left" },
-                        { text: record.qty || record.quantity || "-", align: "right" },
-                        { text: `$${parseFloat(record.price).toFixed(2)}`, align: "right" },
+                        { text: record.qty || record.quantity || "-", align: "left" },
+                        { text: `$${parseFloat(record.price).toFixed(2)}`, align: "left" },
                         { text: record.comment, align: "left" },
                         { text: record.status, align: "center" },
                         { text: record.buyer, align: "left" },

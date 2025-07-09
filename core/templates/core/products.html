@@ -112,7 +112,7 @@
         <img id="modalProductImage" src="" alt="Product Image" style="max-width: 200px; margin: 0 auto 1em auto; display: block;" />
         <p>Unit Price: <span id="modalPrice"></span></p>
         <label>Quantity:</label>
-        <input type="number" id="modalQty" value="1" min="1" onchange="updateTotal()" />
+        <input type="number" id="modalQty" value="1" min="1" oninput="updateTotal()" />
         <p>Total Price: <span id="modalTotal"></span></p>
         <button class="button" onclick="confirmPurchase()">Confirm</button>
         <button class="button" onclick="closeModal()">Close</button>
@@ -337,14 +337,36 @@
     }
 
     function updateTotal() {
-        const qty = parseInt(document.getElementById("modalQty").value);
-        const total = (currentProduct.price * qty).toFixed(2);
-        document.getElementById("modalTotal").innerText = `$${total}`;
+    const qtyInput = document.getElementById("modalQty");
+    const qty = parseInt(qtyInput.value);
+
+    // Validate quantity (non-empty, numeric, and > 0)
+    if (isNaN(qty) || qty <= 0) {
+        document.getElementById("modalTotal").innerText = "Total Price: $0.00";
+        qtyInput.style.borderColor = "red";  // optional visual warning
+        return;
     }
 
+    qtyInput.style.borderColor = "";  // reset visual warning
+    const total = (currentProduct.price * qty).toFixed(2);
+    document.getElementById("modalTotal").innerText = `Total Price: $${total}`;
+	}
+
+
     function confirmPurchase() {
-        document.getElementById("confirmModal").style.display = "block";
+    const qtyInput = document.getElementById("modalQty");
+    const qty = parseInt(qtyInput.value);
+
+    // Validate quantity: must be a number and at least 1
+    if (isNaN(qty) || qty < 1) {
+        qtyInput.style.borderColor = "red";
+        alert("Please enter a valid quantity (at least 1) before proceeding.");
+        return; // stop here if invalid
     }
+
+    qtyInput.style.borderColor = "";
+    document.getElementById("confirmModal").style.display = "block"; // show confirmation popup
+	}
 
     function closeModal() {
         console.log("Closing purchase modal");
@@ -355,14 +377,52 @@
         document.getElementById("confirmModal").style.display = "none";
     }
 
-    function goToPayment() {
+    
+	function goToPayment() {
+    //  Validate payment fields first
+    const cardNumber = document.getElementById("cardNumber").value.trim();
+    const cardName = document.getElementById("cardName").value.trim();
+    const expiry = document.getElementById("expiry").value.trim();
+    const cvv = document.getElementById("cvv").value.trim();
+
+    if (!cardNumber || !cardName || !expiry || !cvv) {
+        alert("Please fill in all payment fields.");
+        return;
+    }
+
+    if (!/^\d{13,19}$/.test(cardNumber)) {
+        alert("Card number must be 13 to 19 digits.");
+        return;
+    }
+
+    const expiryMatch = expiry.match(/^(0[1-9]|1[0-2])\/(\d{2})$/);
+    if (!expiryMatch) {
+        alert("Expiry must be in MM/YY format.");
+        return;
+    }
+
+    const inputMonth = parseInt(expiryMatch[1], 10);
+    const inputYear = parseInt("20" + expiryMatch[2], 10);
+    const now = new Date();
+    const expiryDate = new Date(inputYear, inputMonth);
+    const currentMonth = new Date(now.getFullYear(), now.getMonth() + 1);
+
+    if (expiryDate < currentMonth) {
+        alert("Card is expired.");
+        return;
+    }
+
+    if (!/^\d{3}$/.test(cvv)) {
+        alert("CVV must be exactly 3 digits.");
+        return;
+    }
+
+    //  Payment validation passed – now proceed with purchase
     const qty = parseInt(document.getElementById("modalQty").value);
     const productId = currentProduct.id;
 
-    // First, close the payment modal to give it time before UI changes
     closePaymentModal();
 
-    // Delay the fetch slightly to let UI update
     setTimeout(() => {
         fetch("/purchase_product/", {
             method: "POST",
@@ -375,16 +435,17 @@
         .then(response => response.json())
         .then(data => {
             alert(data.message || "Purchase complete.");
-            closeModal(); // purchase modal
-            closeConfirmModal(); // confirm modal
-            fetchProductsFromServer(); // Refresh product grid
+            closeModal();
+            closeConfirmModal();
+            fetchProductsFromServer();
         })
         .catch(error => {
             alert("Something went wrong. Please try again.");
             console.error(error);
         });
-    }, 100); // 100ms delay to allow UI updates
+    }, 100);
 }
+
 
     function openCatalogModal(product) {
         currentCatalogProduct = product;

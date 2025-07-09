@@ -204,7 +204,8 @@
             <h4 id="bargainProductName"></h4>
             <p>Original Price: $<span id="originalPrice"></span></p>
             <p>Minimum Quantity for Bargain: <span id="minBargainQty"></span> <span id="minBargainQtyUnit"></span></p>
-            <p>Minimum Price for Bargain: $<span id="minBargainPrice"></span></p>
+              <!--<p>Minimum Price for Bargain: $<span id="minBargainPrice"></span></p>-->
+			<p style="display: none;">Minimum Price for Bargain: $<span id="minBargainPrice"></span></p>
 
             <!-- <label for="minBargainQty">Minimum Quantity for Bargain:</label>
             <input type="number" id="minBargainQty" readonly />
@@ -213,10 +214,10 @@
             <input type="number" id="minBargainPrice" readonly /> -->
 
             <label for="bargainQty">Bargain Quantity:</label>
-            <input type="number" id="bargainQty" value="0" min="0" onchange="updateTotalPrice()" />
+            <input type="number" id="bargainQty" value="0" min="0" oninput="updateTotalPrice()" />
 
             <label for="bargainPrice">Bargain Price:</label>
-            <input type="number" id="bargainPrice" value="0" min="0" step="0.01" onchange="updateTotalPrice()" />
+            <input type="number" id="bargainPrice" value="0" min="0" step="0.01" oninput="updateTotalPrice()" />
 
            <label for="totalPrice"><strong>Total Price:</strong></label>
 			<input type="text" id="totalPrice" value="0.00" readonly />
@@ -317,37 +318,45 @@ document.addEventListener("DOMContentLoaded", fetchNegotiationProducts);
     }
 
     function handleBargainAction(action) {
-        const qty = parseInt(document.getElementById("bargainQty").value);
-        const price = parseFloat(document.getElementById("bargainPrice").value);
-        const errorMsg = document.getElementById("bargainError");
+    const qty = parseInt(document.getElementById("bargainQty").value);
+    const price = parseFloat(document.getElementById("bargainPrice").value);
+    const errorMsg = document.getElementById("bargainError");
+    const minQty = currentBargainProduct.min_quantity;
 
-        if (!qty || !price || qty <= 0 || price <= 0) {
-            errorMsg.innerText = "Please enter a valid quantity and bargain price before proceeding.";
-            errorMsg.style.display = "block";
-            return;
-        }
-
-        errorMsg.style.display = "none";
-        if (action === "submit") {
-            fetch("/save_bargain_request/", {
-                method: "POST",
-                headers: {"Content-Type": "application/json"},
-                body: JSON.stringify({
-                    product_id: currentBargainProduct.id,
-                    quantity: qty,
-                    price: price
-                })
-            }).then(res => res.json()).then(data => {
-                if (data.status === "success") {
-                    alert("Bargain request submitted!");
-                    closeBargainModal();
-                }
-            });
-            return;
-        }
-        alert(`${action.charAt(0).toUpperCase() + action.slice(1)} action submitted for ${currentBargainProduct.name}`);
-        closeBargainModal();
+    if (!qty || qty <= 0 || price <= 0) {
+        errorMsg.innerText = "Please enter a valid quantity and bargain price before proceeding.";
+        errorMsg.style.display = "block";
+        return;
     }
+
+    if (minQty && qty < minQty) {
+        errorMsg.innerText = `Bargain quantity must be at least ${minQty}.`;
+        errorMsg.style.display = "block";
+        return;
+    }
+
+    errorMsg.style.display = "none";
+    if (action === "submit") {
+        fetch("/save_bargain_request/", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                product_id: currentBargainProduct.id,
+                quantity: qty,
+                price: price
+            })
+        }).then(res => res.json()).then(data => {
+            if (data.status === "success") {
+                alert("Bargain request submitted!");
+                closeBargainModal();
+            }
+        });
+        return;
+    }
+    alert(`${action.charAt(0).toUpperCase() + action.slice(1)} action submitted for ${currentBargainProduct.name}`);
+    closeBargainModal();
+}
+
 
     let currentUpdateProductId = null;
 
@@ -432,7 +441,13 @@ function saveBargainSetting() {
     });
 }
 
-
+	function updateTotalPrice() {
+    const qty = parseFloat(document.getElementById("bargainQty").value) || 0;
+    const price = parseFloat(document.getElementById("bargainPrice").value) || 0;
+    const total = (qty * price).toFixed(2);
+    document.getElementById("totalPrice").value = total;
+}
+	
     function filterProducts() {
         const category = document.getElementById("categorySelect").value.toLowerCase();
         const searchText = document.getElementById("searchText").value.toLowerCase();
