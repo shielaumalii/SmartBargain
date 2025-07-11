@@ -85,7 +85,7 @@ def save_negotiation_response(bargain_id, quantity, price, comment, action, conn
         # Update bargain_requests status
         cursor.execute("UPDATE bargain_requests SET status = ? WHERE id = ?", (status, bargain_id))
 
-        # ✅ Insert including product_id
+        # Insert including product_id
         cursor.execute("""
             INSERT INTO negotiation_dashboard (
                 bargain_id, product_id, proposed_quantity, proposed_price, comment,
@@ -223,7 +223,7 @@ def update_negotiation_dashboard_response(row_id, quantity, price, comment, acti
         conn = create_connection()
         cursor = conn.cursor()
 
-        # ✅ NEW normalization logic
+        #  NEW normalization logic
         normalized_map = {
             "accept": "Accepted",
             "reject": "Rejected",
