@@ -43,25 +43,3 @@ Smart Bargain is a web-based marketplace platform that enables buyers and seller
 
 
 ---
-
-##  Project Structure
-
-SmartBargain/
-├── core/
-│ ├── backend/
-│ │ ├── database.py
-│ │ ├── login.py
-│ │ ├── user_factory.py
-│ │ ├── product_manager.py
-│ │ ├── bargain_factory.py
-│ │ ├── dashboard.py
-│ │ └── contact_manager.py
-│ ├── templates/core/
-│ │ └── *.html
-│ ├── static/core/
-│ ├── views.py
-│ └── urls.py
-├── db/
-│ └── smartbargain.db
-├── manage.py
-└── README.md
