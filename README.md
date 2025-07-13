@@ -4,30 +4,42 @@ Smart Bargain is a web-based marketplace platform that enables buyers and seller
 
 ---
 
-##  Live Demo
+## 🌍 Live Enviornemnt 
 
 👉 [Click here to visit the deployed site](https://lakmali.pythonanywhere.com/)
 
 ---
 
-##  Features Overview
+## 🧩 Features Overview
 
-###  User Roles
-- **Buyer**: Browse products, initiate bargain requests, purchase items.
-- **Seller**: Add/edit/delete products, set bargain rules, respond to negotiations.
+- **🔐 User Authentication**  
+  Role-based login and registration system for Buyers and Sellers using Factory pattern.
 
-###  Product & Bargain Management
-- Sellers set minimum quantity and price per product.
-- Buyers submit bargain offers.
-- Sellers can accept, reject, or counter.
+- **🛒 Product Management**  
+  Sellers can add, edit, and delete product listings with images, prices, and quantities.
 
-###  Dashboard
-- View active negotiations, order history, and messages.
-- Filter and manage bargain tasks and purchase records.
+- **📦 Product Purchase Flow**  
+  Buyers can purchase products by selecting quantity and confirming payment.
 
-###  Contact System
-- Anyone (even guests) can submit contact messages.
-- Sellers can view, respond, and close messages from their dashboard.
+- **🤝 Price Negotiation System**  
+  Buyers and sellers can negotiate product prices and quantities with support for:  
+  Accept/Reject/Cancel, Counter proposals, and Status tracking (Pending, Approved, Rejected, etc.)
+
+- **📊 Dashboard Interface**  
+  Unified dashboard view for:  
+  Negotiation tasks, Orders, Messages (for sellers), with filtering, pagination, and modal interaction.
+
+- **📬 Contact Messaging**  
+  Visitors can send messages to sellers. Sellers can view, filter, and mark messages as closed.
+
+- **📁 Singleton-based Database Handling**  
+  All database operations handled via a Singleton pattern for consistent access.
+
+- **⚙️ Clean MVC-like Structure**  
+  Backend logic separated into reusable modules: `database.py`, `login.py`, `dashboard.py`, etc.
+
+- **🌐 Deployed Online**  
+  Live deployment using PythonAnywhere for public access.
 
 ---
 
@@ -43,7 +55,7 @@ Smart Bargain is a web-based marketplace platform that enables buyers and seller
 
 
 ---
-🛠️ Troubleshooting Tips
+## ⚠️ Troubleshooting Tips
 
 🗃️ Database Not Working or Site Not Loading
 Please make sure the website has been properly launched by the admin. If the site doesn’t load, try refreshing or come back later.
