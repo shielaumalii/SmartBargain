@@ -96,9 +96,11 @@ For licensing inquiries, contact: [270620124@yoobeestudent.ac.nz] or [270650805@
 **Developers:** Palamuni Telma Lakmali De Silva and Shiela Marie L. Umali  
 **Year:** 2025  
 
-## Project Folder Structure
+## Project Folder Structure          
+<img width="314" height="700" alt="image" src="https://github.com/user-attachments/assets/fd377432-9029-4083-a085-4b27c932af70" />
 
-<pre lang="markdown"><code>## 📁 Project Folder Structure – Smart Bargain ```plaintext SmartBargain/ ├── SmartBargain/ # Django project folder │ ├── settings.py │ ├── urls.py │ └── ... │ ├── core/ # Main Django app │ ├── backend/ # Custom backend logic (no __init__.py) │ │ ├── bargain_factory.py │ │ ├── contact_manager.py │ │ ├── dashboard.py │ │ ├── database.py │ │ ├── login.py │ │ ├── product_manager.py │ │ └── user_factory.py │ │ │ ├── templates/ │ │ └── core/ # HTML templates │ │ ├── base.html │ │ ├── dashboard.html │ │ ├── homepage.html │ │ ├── login.html │ │ ├── negotiate.html │ │ └── products.html │ │ │ ├── static/ # Static files │ │ └── core/ │ │ ├── css/ │ │ ├── js/ │ │ └── images/ │ │ │ ├── db/ # Database folder (inside core) │ │ └── smartbargain.db # Custom SQLite database via Singleton │ │ │ ├── views.py │ └── urls.py │ ├── manage.py # Django management script └── README.md # Project documentation ``` </code></pre>
+
+
 
 
  
