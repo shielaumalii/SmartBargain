@@ -1,4 +1,4 @@
-# 🛒 Smart Bargain
+# 🛒 Smart Bargain - v1.0.0
 
 Smart Bargain is a web-based marketplace platform that enables buyers and sellers to negotiate product prices, track orders, and manage inventory in real time.
 
@@ -43,3 +43,29 @@ Smart Bargain is a web-based marketplace platform that enables buyers and seller
 
 
 ---
+🛠️ Troubleshooting Tips
+
+🗃️ Database Not Working or Site Not Loading
+Please make sure the website has been properly launched by the admin. If the site doesn’t load, try refreshing or come back later.
+
+🔐 Login or Registration Problems
+Double-check your email and password.
+Make sure you’ve selected the correct user type: Buyer or Seller.
+If registration fails, ensure all fields are filled correctly.
+
+🛒 Product or Negotiation Details Not Visible
+Try refreshing the page.
+Make sure you are logged in.
+If problems continue, contact support.
+
+⚠️ Unauthorized Access Message
+Some features are only available to certain users (e.g., only Sellers can add products).
+Log out and log back in with the correct user type.
+
+📅 Booking or Price Entry Errors
+Ensure quantity and price are valid numbers.
+All fields must be filled in before submitting.
+
+📬 Contact Messages Not Working
+Make sure you enter a valid email and a clear message.
+After submitting, your message will be visible to sellers.
