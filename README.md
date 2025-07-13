@@ -4,7 +4,7 @@ Smart Bargain is a web-based marketplace platform that enables buyers and seller
 
 ---
 
-## 🌍 Live Enviornemnt 
+## 🌍 Live Environment 
 
 👉 [Click here to visit the deployed site](https://lakmali.pythonanywhere.com/)
 
@@ -93,7 +93,7 @@ For licensing inquiries, contact: [270620124@yoobeestudent.ac.nz] or [270650805@
 
 ## Credits
 
-**Developers:** Palamuni Telma Lakmali De Silva, Shiela Marie L. Umali  
+**Developers:** Palamuni Telma Lakmali De Silva and Shiela Marie L. Umali  
 **Year:** 2025  
 
  
