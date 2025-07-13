@@ -98,47 +98,7 @@ For licensing inquiries, contact: [270620124@yoobeestudent.ac.nz] or [270650805@
 
 ## Project Folder Structure
 
-SmartBargain/
-├── SmartBargain/                     
-│   ├── settings.py
-│   ├── urls.py
-│   └── ...
-│
-├── core/                            
-│   ├── backend/                     
-│   │   ├── bargain_factory.py
-│   │   ├── contact_manager.py
-│   │   ├── dashboard.py
-│   │   ├── database.py
-│   │   ├── login.py
-│   │   ├── product_manager.py
-│   │   └── user_factory.py
-│   │
-│   ├── templates/
-│   │   └── core/                    
-│   │       ├── base.html
-│   │       ├── dashboard.html
-│   │       ├── homepage.html
-│   │       ├── login.html
-│   │       ├── negotiate.html
-│   │       └── products.html
-│   │
-│   ├── static/                      
-│   │   └── core/
-│   │       ├── css/
-│   │       ├── js/
-│   │       └── images/
-│   │
-│   ├── db/                          
-│   │   └── smartbargain.db          
-│   │
-│   ├── views.py
-│   └── urls.py
-│
-├── manage.py                         
-└── README.md
-└── requirements.txt
-
+<pre lang="markdown"><code>## 📁 Project Folder Structure – Smart Bargain ```plaintext SmartBargain/ ├── SmartBargain/ # Django project folder │ ├── settings.py │ ├── urls.py │ └── ... │ ├── core/ # Main Django app │ ├── backend/ # Custom backend logic (no __init__.py) │ │ ├── bargain_factory.py │ │ ├── contact_manager.py │ │ ├── dashboard.py │ │ ├── database.py │ │ ├── login.py │ │ ├── product_manager.py │ │ └── user_factory.py │ │ │ ├── templates/ │ │ └── core/ # HTML templates │ │ ├── base.html │ │ ├── dashboard.html │ │ ├── homepage.html │ │ ├── login.html │ │ ├── negotiate.html │ │ └── products.html │ │ │ ├── static/ # Static files │ │ └── core/ │ │ ├── css/ │ │ ├── js/ │ │ └── images/ │ │ │ ├── db/ # Database folder (inside core) │ │ └── smartbargain.db # Custom SQLite database via Singleton │ │ │ ├── views.py │ └── urls.py │ ├── manage.py # Django management script └── README.md # Project documentation ``` </code></pre>
 
 
  
