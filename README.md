@@ -35,9 +35,6 @@ Smart Bargain is a web-based marketplace platform that enables buyers and seller
 - **📁 Singleton-based Database Handling**  
   All database operations handled via a Singleton pattern for consistent access.
 
-- **⚙️ Clean MVC-like Structure**  
-  Backend logic separated into reusable modules: `database.py`, `login.py`, `dashboard.py`, etc.
-
 - **🌐 Deployed Online**  
   Live deployment using PythonAnywhere for public access.
 
@@ -81,3 +78,23 @@ All fields must be filled in before submitting.
 📬 Contact Messages Not Working
 Make sure you enter a valid email and a clear message.
 After submitting, your message will be visible to sellers.
+
+---
+
+## License
+
+All content, code, and assets of this website are the exclusive property of Palamuni Telma Lakmali De Silva and Shiela Marie L. Umali.  
+No part of this website may be copied, reproduced, distributed, or used in any manner without express written permission from the owner.  
+All rights reserved.
+
+For licensing inquiries, contact: [270620124@yoobeestudent.ac.nz] or [270650805@yoobeestudent.ac.nz]
+
+---
+
+## Credits
+
+**Developers:** Palamuni Telma Lakmali De Silva, Shiela Marie L. Umali  
+**Year:** 2025  
+
+ 
+
