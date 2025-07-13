@@ -10,7 +10,7 @@ Smart Bargain is a web-based marketplace platform that enables buyers and seller
 
 ---
 
-##  Features
+##  Features Overview
 
 ###  User Roles
 - **Buyer**: Browse products, initiate bargain requests, purchase items.
@@ -39,7 +39,7 @@ Smart Bargain is a web-based marketplace platform that enables buyers and seller
 | Frontend     | HTML, CSS, JavaScript     |
 | Database     | SQLite (via Singleton DB) |
 | Patterns     | Singleton, Factory        |
-| Deployment   | Render / Vercel / YourHost |
+| Deployment   | PythonAnywhere            |
 
 
 ---
