@@ -96,5 +96,50 @@ For licensing inquiries, contact: [270620124@yoobeestudent.ac.nz] or [270650805@
 **Developers:** Palamuni Telma Lakmali De Silva and Shiela Marie L. Umali  
 **Year:** 2025  
 
+## Project Folder Structure
+
+SmartBargain/
+├── SmartBargain/                     
+│   ├── settings.py
+│   ├── urls.py
+│   └── ...
+│
+├── core/                            
+│   ├── backend/                     
+│   │   ├── bargain_factory.py
+│   │   ├── contact_manager.py
+│   │   ├── dashboard.py
+│   │   ├── database.py
+│   │   ├── login.py
+│   │   ├── product_manager.py
+│   │   └── user_factory.py
+│   │
+│   ├── templates/
+│   │   └── core/                    
+│   │       ├── base.html
+│   │       ├── dashboard.html
+│   │       ├── homepage.html
+│   │       ├── login.html
+│   │       ├── negotiate.html
+│   │       └── products.html
+│   │
+│   ├── static/                      
+│   │   └── core/
+│   │       ├── css/
+│   │       ├── js/
+│   │       └── images/
+│   │
+│   ├── db/                          
+│   │   └── smartbargain.db          
+│   │
+│   ├── views.py
+│   └── urls.py
+│
+├── manage.py                         
+└── README.md
+└── requirements.txt
+
+
+
  
 
