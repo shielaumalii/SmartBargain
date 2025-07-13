@@ -1,3 +1,7 @@
+<p align="center"><img width="700"  alt="smart (1)" src="https://github.com/user-attachments/assets/b42c0bfe-777f-474d-9074-c0bd9a4455f1" /></p>
+
+---
+
 # 🛒 Smart Bargain - v1.0.0
 
 Smart Bargain is a web-based marketplace platform that enables buyers and sellers to negotiate product prices, track orders, and manage inventory in real time.
@@ -81,6 +85,11 @@ After submitting, your message will be visible to sellers.
 
 ---
 
+## Project Folder Structure          
+<img width="314" height="700" alt="image" src="https://github.com/user-attachments/assets/fd377432-9029-4083-a085-4b27c932af70" />
+
+---
+
 ## License
 
 All content, code, and assets of this website are the exclusive property of Palamuni Telma Lakmali De Silva and Shiela Marie L. Umali.  
@@ -96,8 +105,7 @@ For licensing inquiries, contact: [270620124@yoobeestudent.ac.nz] or [270650805@
 **Developers:** Palamuni Telma Lakmali De Silva and Shiela Marie L. Umali  
 **Year:** 2025  
 
-## Project Folder Structure          
-<img width="314" height="700" alt="image" src="https://github.com/user-attachments/assets/fd377432-9029-4083-a085-4b27c932af70" />
+
 
 
 
