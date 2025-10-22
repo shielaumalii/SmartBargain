@@ -96,7 +96,7 @@ All content, code, and assets of this website are the exclusive property of Pala
 No part of this website may be copied, reproduced, distributed, or used in any manner without express written permission from the owner.  
 All rights reserved.
 
-For licensing inquiries, contact: [270620124@yoobeestudent.ac.nz] or [270650805@yoobeestudent.ac.nz]
+For licensing inquiries, contact: [telmalakmali555@gmail.com] or [270650805@yoobeestudent.ac.nz]
 
 ---
 
